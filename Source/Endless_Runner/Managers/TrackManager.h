@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/BoxComponent.h"
+#include "../TrackPiece.h"
 #include "TrackManager.generated.h"
 
 UCLASS()
@@ -25,7 +26,29 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	UPROPERTY(VisibleAnywhere)
 	UBoxComponent* ExitCollider; 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Track Blueprints")
+	TArray<TSubclassOf<ATrackPiece> > PossibleTrackPieces;
+		
+	UPROPERTY()
+	TArray<ATrackPiece*> CurrentTrackPieces;
+	UPROPERTY()
+	int32 TrackCount; 
+	UPROPERTY(EditAnywhere) 
+	float TrackSpeed;
+	
+	UPROPERTY()
+	float TrackDelta;
+	UPROPERTY(VisibleAnywhere)
+	TWeakObjectPtr<ATrackPiece> HeadTrackPiece; 
+	UPROPERTY(VisibleAnywhere)
+	TWeakObjectPtr<ATrackPiece> TailTrackPiece;
+	
+	
 	UFUNCTION()
-	void ExtendTrack(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void InitializeTrack();
+	UFUNCTION()
+	void LinkTrackPieces(); 
+	UFUNCTION()
+	void ShiftTrack(float const DeltaTime);
 
 };

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/ArrowComponent.h"
 #include "TrackPiece.generated.h"
 
 UCLASS()
@@ -15,6 +16,7 @@ class ENDLESS_RUNNER_API ATrackPiece : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ATrackPiece();
+	ATrackPiece(ATrackPiece* BeforeTrackPiece, ATrackPiece* AfterTrackPiece);
 
 protected:
 	// Called when the game starts or when spawned
@@ -26,12 +28,23 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* SuperMesh; 
 
-	UPROPERTY(VisibleAnywhere)
-	class UBoxComponent* ExitCollider;
+	/*UPROPERTY(VisibleAnywhere)
+	class UBoxComponent* ExitCollider; */
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite)
+	class UArrowComponent* TrackSeamPoint;
 
+	/*UPROPERTY()
+	TWeakObjectPtr<ATrackPiece> PreviousTrackPiece;*/
+	UPROPERTY(VisibleAnywhere)
+	TWeakObjectPtr<ATrackPiece> PreviousTrackPiece;
+	/*UPROPERTY()
+	TWeakObjectPtr<ATrackPiece> NextTrackPiece;*/
+	UPROPERTY(VisibleAnywhere)
+	TWeakObjectPtr<ATrackPiece> NextTrackPiece;
 	UFUNCTION()
 	void DeactivateTrackPiece(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	void ActivateTrackPiece();
+	
 
 };
