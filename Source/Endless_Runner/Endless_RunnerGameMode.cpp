@@ -12,4 +12,13 @@ AEndless_RunnerGameMode::AEndless_RunnerGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+	ObstacleRelativeOffsets.Add(FVector(250.f, -150.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(550.f, -150.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(850.f, -150.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(250.f, -450.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(550.f, -450.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(850.f, -450.f, -150.f)); 
+	ObstacleRelativeOffsets.Add(FVector(250.f, -750.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(550.f, -750.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(850.f, -750.f, -150.f));
 }

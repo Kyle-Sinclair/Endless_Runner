@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/BoxComponent.h"
 #include "../TrackPiece.h"
+#include "../Factories/ObstacleFactory.h"
 #include "TrackManager.generated.h"
 
 UCLASS()
@@ -16,6 +17,7 @@ class ENDLESS_RUNNER_API ATrackManager : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ATrackManager();
+	~ATrackManager();
 
 protected:
 	// Called when the game starts or when spawned
@@ -28,7 +30,14 @@ public:
 	UBoxComponent* ExitCollider; 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Track Blueprints")
 	TArray<TSubclassOf<ATrackPiece> > PossibleTrackPieces;
-		
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Obstacle Blueprints")
+	TArray<TSubclassOf<AObstacle>> PossibleObstacles;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UObstacleFactory> ObstacleFactory;
+
+	UPROPERTY()
+	TObjectPtr<UObstacleFactory> ObstacleFactoryRef;
 	UPROPERTY()
 	TArray<ATrackPiece*> CurrentTrackPieces;
 	UPROPERTY()
@@ -49,6 +58,10 @@ public:
 	UFUNCTION()
 	void LinkTrackPieces(); 
 	UFUNCTION()
+	void CycleTrack();
+	UFUNCTION()
 	void ShiftTrack(float const DeltaTime);
+	UFUNCTION()
+	void SpawnObstaclesOnTrack();
 
 };

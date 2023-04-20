@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Obstacle.h"
 #include "TrackPiece.generated.h"
 
 UCLASS()
@@ -22,6 +23,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+private:
+	TArray<FVector> ObstacleSlots;
+	TArray<AObstacle*> Obstacles;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -45,6 +49,9 @@ public:
 	void DeactivateTrackPiece(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	void ActivateTrackPiece();
-	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Track Blueprints")
+	TArray<TSubclassOf<AObstacle>> PossibleObstacles;
 
+public:
+	void AttachObstacleToTrackPiece(const FVector SpawnPosition, AObstacle* ObstacleToWeld);
 };

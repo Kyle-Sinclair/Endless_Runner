@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "TrackManager.h"
+#include "../Endless_RunnerGameMode.h"
 
 #include "../TrackPiece.h"
 
@@ -13,6 +14,11 @@ ATrackManager::ATrackManager()
 
 }
 
+ATrackManager::~ATrackManager()
+{
+
+}
+
 // Called when the game starts or when spawned
 void ATrackManager::BeginPlay()
 {
@@ -22,11 +28,16 @@ void ATrackManager::BeginPlay()
 	CurrentTrackPieces.Emplace(GetWorld()->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], FVector(0.f, 0.f, 0.f), GetActorRotation()));
 	TailTrackPiece = CurrentTrackPieces[0];
 	HeadTrackPiece = TailTrackPiece;
-	
+	//ObstacleFactoryRef = CreateDefaultSubobject<UObstacleFactory>();
+	//ObstacleFactory = CreateDefaultSubobject<UObstacleFactory>();
+	//TSubclassOf<UObstacleFactory> classof = UObstacleFactory::StaticClass();
+	//ObstacleFactory = NewObject<UObstacleFactory>(classof);
 	InitializeTrack();
 	LinkTrackPieces();
 	HeadTrackPiece = CurrentTrackPieces[9];
 	TailTrackPiece = CurrentTrackPieces[0];
+
+	
 
 }
 
@@ -35,12 +46,14 @@ void ATrackManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	ShiftTrack(DeltaTime);
-	if (TrackDelta > 1500.f) {
-		TrackDelta -= 1500.f;
+	if (TrackDelta > 900.f) {
+		TrackDelta -= 900.f;
+		CycleTrack();
+		SpawnObstaclesOnTrack();
 	}
-	if (GEngine) {
+	/*if (GEngine) {
 		GEngine->AddOnScreenDebugMessage(-2, 15.0f, FColor::Blue, FString::Printf(TEXT("Position delta is % f"), TrackDelta));
-	}
+	}*/
 }
 
 
@@ -54,6 +67,20 @@ void ATrackManager::ShiftTrack(float const DeltaTime) {
 		TrackPiece->AddActorWorldOffset(FVector(posDelta, 0.f, 0.f));
 	}
 	TrackDelta += -posDelta;
+}
+
+void ATrackManager::SpawnObstaclesOnTrack()
+{
+	AEndless_RunnerGameMode* mymode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
+	FVector BoxSize = FVector(50.f, 50.f, 50.f);
+
+	TArray<FVector> ObstacleRelativeOffsets = mymode->ObstacleRelativeOffsets;
+	for (FVector vec : ObstacleRelativeOffsets)
+	{
+		AObstacle* Obstacle = GetWorld()->SpawnActor<AObstacle>(PossibleObstacles[0], HeadTrackPiece->TrackSeamPoint->GetComponentLocation() - vec, GetActorRotation());
+		HeadTrackPiece->AttachObstacleToTrackPiece(vec, Obstacle);
+		DrawDebugSolidBox(GetWorld(), HeadTrackPiece->TrackSeamPoint->GetComponentLocation() - vec, BoxSize, FColor::Blue, false);
+	}
 }
 
 void ATrackManager::InitializeTrack()
@@ -72,10 +99,21 @@ void ATrackManager::LinkTrackPieces()
 	CurrentTrackPieces[0]->NextTrackPiece = CurrentTrackPieces[1];
 	CurrentTrackPieces[0]->PreviousTrackPiece = CurrentTrackPieces[9];
 	for (int i = 1; i < CurrentTrackPieces.Num(); i++) {
-		UE_LOG(LogTemp, Warning, TEXT("The Actor's name is %s"), *CurrentTrackPieces[i]->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("The Actor's name is %s"), *CurrentTrackPieces[i]->GetName());
 		CurrentTrackPieces[i]->PreviousTrackPiece = CurrentTrackPieces[(i - 1) % 10];
 		CurrentTrackPieces[i]->NextTrackPiece = CurrentTrackPieces[(i + 1) % 10];
 	}
 
 
+}
+
+void ATrackManager::CycleTrack()
+{
+	const FVector SpawnLocation = HeadTrackPiece->TrackSeamPoint->GetComponentLocation();
+	TailTrackPiece->SetActorLocation(SpawnLocation);
+	TWeakObjectPtr<ATrackPiece> temp = TailTrackPiece->NextTrackPiece;
+	HeadTrackPiece = TailTrackPiece;
+	TailTrackPiece = temp;
+
+	
 }
