@@ -39,7 +39,8 @@ class AEndless_RunnerCharacter : public ACharacter
 
 public:
 	AEndless_RunnerCharacter();
-	
+	void OnBeginOverlap();
+
 
 protected:
 
@@ -48,7 +49,7 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-			
+	
 
 protected:
 	// APawn interface
