@@ -28,6 +28,7 @@ ATrackPiece::ATrackPiece(ATrackPiece* BeforeTrackPiece, ATrackPiece* AfterTrackP
 	TrackSeamPoint->AttachToComponent(SuperMesh, FAttachmentTransformRules::KeepRelativeTransform);
 	PreviousTrackPiece = BeforeTrackPiece;
 	NextTrackPiece = AfterTrackPiece;
+	//Example
 
 }
 
