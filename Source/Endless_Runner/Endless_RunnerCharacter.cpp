@@ -110,22 +110,15 @@ void AEndless_RunnerCharacter::Move(const FInputActionValue& Value)
 
 	if (Controller != nullptr)
 	{
-		// find out which way is forward
-		//const FRotator Rotation = Controller->GetControlRotation();
-		//const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		//// get forward vector
-		//const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	
-		//// get right vector 
-		//const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		LaneNumber += MovementVector.X;
+		if (LaneNumber < 0) {
+			LaneNumber = 2;
+		}
+		LaneNumber = LaneNumber % 3;
 
-		//// add movement 
-		//AddMovementInput(ForwardDirection, MovementVector.Y);
-		//AddMovementInput(RightDirection, MovementVector.X);
 		AEndless_RunnerGameMode* mymode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
-
-		FVector newLocation = mymode->LaneOffSets[LaneNumber++ % 3];
+		FVector newLocation = mymode->LaneOffSets[LaneNumber];
 		SetActorLocation(newLocation);
 	}
 }
