@@ -77,7 +77,7 @@ void AEndless_RunnerCharacter::BeginPlay()
 
 void AEndless_RunnerCharacter::OnCollideWithObstacle(UPrimitiveComponent* /*ignored*/, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Blue, TEXT("Actor Collision"));
+	//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Blue, TEXT("Actor Collision"));
 	OtherActor->Destroy();
 }
 
