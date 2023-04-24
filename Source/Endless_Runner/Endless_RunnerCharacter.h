@@ -37,6 +37,9 @@ class AEndless_RunnerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
 
+	UPROPERTY(VisibleAnywhere)
+	int32 LaneNumber;
+
 public:
 	AEndless_RunnerCharacter();
 	void OnBeginOverlap();
@@ -58,6 +61,9 @@ protected:
 	// To add mapping context
 	virtual void BeginPlay();
 
+	UFUNCTION()
+	void OnCollideWithObstacle(UPrimitiveComponent* collider, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

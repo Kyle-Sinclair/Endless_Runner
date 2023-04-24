@@ -14,6 +14,7 @@ class AEndless_RunnerGameMode : public AGameModeBase
 public:
 	AEndless_RunnerGameMode();
 	TArray<FVector> ObstacleRelativeOffsets;
+	TArray<FVector> LaneOffSets;
 
 	
 	

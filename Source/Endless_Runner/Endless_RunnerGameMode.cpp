@@ -21,4 +21,9 @@ AEndless_RunnerGameMode::AEndless_RunnerGameMode()
 	ObstacleRelativeOffsets.Add(FVector(250.f, -750.f, -150.f));
 	ObstacleRelativeOffsets.Add(FVector(550.f, -750.f, -150.f));
 	ObstacleRelativeOffsets.Add(FVector(850.f, -750.f, -150.f));
+
+	LaneOffSets.Add(FVector(1550.f, 150.f, 200.f));
+	LaneOffSets.Add(FVector(1550.f, 450.f, 200.f));
+	LaneOffSets.Add(FVector(1550.f, 750.f, 200.f));
+
 }
