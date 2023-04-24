@@ -6,7 +6,7 @@ An Endless Runner prototype build designed to learn basic OOP principles in Unre
 
 The program is divided into discrete classes which perform different roles
 
-The Meshes which provide the ground for our character all extend one class called Track Segment
+The Meshes which provide the ground for our character all extend one class called Track Segment.
 These pieces can have their mesh component altered in the blueprint editor but are currently 
 all one kind for prototyping purposes.
 
@@ -18,18 +18,19 @@ at appropriate times.
 Pointers to these track segments are currently stored in a Tarray inside Track Manager. In order to facilitate
 swapping out and swapping back in track pieces, Track Manager holds two weak pointers to the furthest forward
 and furthest behind pieces of track, called HeadTrackPiece and TailTrackPiece respectively. These allow the
-manager to track the outermost segments of the track. 
+manager to track the outermost segments of the track wihtout needing to reassign indexes of the track array. 
 
 In order to keep these pointers pointing to the outermost segments of track despite swapping the rearmost for the foremost
 intermittently, each track segment has a weak pointer to the track segments either side of it. Track manager can update its
-head and tail track pieces to the subsequent pieces easier this way. 
+head and tail track pieces to the subsequent pieces easier this way. This effectively turns the track itself
+into a linked list, but I would prefer to develop an actual circular buffer that handles this process in
+a more efficient way. 
 
 Currently, obstacles are spawned by track Manager when it switches the rear Track Segment to the fore. 
 These new actors are then attached to that track piece so that their relative positions are maintained
-as the track shifts. These actors are then destroyed 
+as the track shifts. These actors are then destroyed when the tail piece switches to the head.
 
 
-# Features
  
 # To Do
 
@@ -45,5 +46,5 @@ as the track shifts. These actors are then destroyed
 
 - Moving Obstacles such as projectiles
 - Dynamic allocation of static mesh components
-- Subsystem for obstacle creation
+- Subsystem for obstacle creation and destruction
 
