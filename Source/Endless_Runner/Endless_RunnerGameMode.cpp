@@ -44,42 +44,54 @@ void AEndless_RunnerGameMode::InitGame(const FString& MapName, const FString& Op
 void AEndless_RunnerGameMode::StartPlay()
 {
 	Super::StartPlay();
+	SpawnTracks();
+	SpawnPlayers();
+	
+}
+
+void AEndless_RunnerGameMode::SpawnTracks()
+{
 	UWorld* WorldRef = GetWorld();
-
 	UEndlessRunnerGameInstance* Instance = Cast<UEndlessRunnerGameInstance>(GetWorld()->GetGameInstance());
-
 	FVector SpawnPoint = StartingSpawnPoint;
 	FRotator SpawnRotation = FRotator(0.f, 0.f, 0.f);
 	FActorSpawnParameters spawnParam;
+
+
 	for (int i = 0; i < NumPlayers; i++) {
 		SpawnPoint = SpawnPoint + (i * SpawnOffset);
-		//TObjectPtr<ATrackManager> TrackManager = GetWorld()->SpawnActor(TrackImplementation, &SpawnPoint, &SpawnRotation, spawnParam);
-		TObjectPtr<ATrackManager> TrackManager = GetWorld()->SpawnActor<ATrackManager>(TrackImplementation, SpawnPoint, SpawnRotation, spawnParam);
+		TObjectPtr<ATrackManager> TrackManager = WorldRef->SpawnActor<ATrackManager>(TrackImplementation, SpawnPoint, SpawnRotation, spawnParam);
 		Instance->RegisterTracks(TrackManager);
 
 	}
-	FVector SpawnPosition = FVector(0.f, -800.f, 0.f);
+}
+
+void AEndless_RunnerGameMode::SpawnPlayers()
+{
+	FVector SpawnPosition = FVector(0.f, -800.f, 200.f);
+	FActorSpawnParameters SpawnParam;
+	UWorld* WorldRef = GetWorld();
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	for (int i = 0; i < 2; i++) {
-		AActor* playerSpawned = UGameplayStatics::CreatePlayer(WorldRef, i, true);
-		if (playerSpawned) {
-			SpawnPosition += FVector(0.f, i * 1200.f, 0.f);
-			playerSpawned->SetActorLocation(SpawnPosition);
-			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Actor reference worked"));
 
+		APawn* playerSpawned =Cast<APawn>( WorldRef->SpawnActor<AActor>(CharacterImplementation, SpawnPosition, FRotator(0.f, 0.f, 0.f), SpawnParam));
+		//APlayerController* playerSpawned = UGameplayStatics::CreatePlayer(WorldRef, -1, true);
+		if (playerSpawned == nullptr) {
+			UE_LOG(LogTemp, Warning,TEXT( "Nullpointer found"));
+			return;
 		}
-		else {
-			GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Blue, TEXT("Actor reference invalid"));
-		}
-
-
+		//playerSpawned->GetPawn()->SetActorLocation(SpawnPosition);
+		playerSpawned->SetActorLocation(SpawnPosition);
+		playerSpawned->PossessedBy(PlayerController);
+		SpawnPosition += FVector(0.f, (i + 1) * 2400.f, 0.f);
 	}
 }
 
 void AEndless_RunnerGameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
 {
-	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+	//Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Red, TEXT("Actor reference valid"));
+	//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Red, TEXT("Actor reference valid"));
 
 }
 

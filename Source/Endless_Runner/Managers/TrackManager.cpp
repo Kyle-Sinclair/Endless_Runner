@@ -61,24 +61,28 @@ void ATrackManager::ShiftTrack(float const DeltaTime) {
 
 void ATrackManager::InitializeTrack()
 {
-
-
 	CurrentTrackPieces.Reserve(TrackLength);
+
+	TObjectPtr<ATrackPiece> CreatedTrackPiece;
+
 	//Spawn first track segment and make it both tail and head segment
-	CurrentTrackPieces.Emplace(GetWorld()->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], GetActorLocation(), GetActorRotation()));
+	CreatedTrackPiece = GetWorld()->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], GetActorLocation(), GetActorRotation());
+	CreatedTrackPiece->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+	CurrentTrackPieces.Add( CreatedTrackPiece);
 	TailTrackPiece = CurrentTrackPieces[0];
 	HeadTrackPiece = TailTrackPiece;
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
 	//Spawn each subsequent track piece and move the head to each one
-
+	UWorld* WorldRef = GetWorld();
 	for (int i = 1; i < TrackLength; i++) {
 		const FVector SpawnLocation = HeadTrackPiece->TrackSeamPoint->GetComponentLocation();
 		FRotator  SpawnRotation = HeadTrackPiece->TrackSeamPoint->GetComponentRotation();
-		CurrentTrackPieces.Emplace(NewObject<ATrackPiece>(ATrackPiece::StaticClass(),FName("Track Segment"), RF_NoFlags, PossibleTrackPieces[0]));
-
-		//CurrentTrackPieces.Emplace(GetWorld()->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], SpawnLocation, SpawnRotation, SpawnParams));
+		
+		CreatedTrackPiece = WorldRef->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], SpawnLocation, SpawnRotation, SpawnParams);
+		CreatedTrackPiece->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+		CurrentTrackPieces.Emplace(CreatedTrackPiece);
 		HeadTrackPiece = CurrentTrackPieces[i];
 		FObstacleCollection collection;
 	}
@@ -91,7 +95,7 @@ void ATrackManager::LinkTrackPieces()
 	CurrentTrackPieces[0]->NextTrackPiece = CurrentTrackPieces[1];
 	CurrentTrackPieces[0]->PreviousTrackPiece = CurrentTrackPieces[TrackLength - 1];
 	for (int i = 1; i < CurrentTrackPieces.Num(); i++) {
-		//UE_LOG(LogTemp, Warning, TEXT("The Actor's name is %s"), *CurrentTrackPieces[i]->GetName());
+
 		CurrentTrackPieces[i]->PreviousTrackPiece = CurrentTrackPieces[(i - 1) % TrackLength];
 		CurrentTrackPieces[i]->NextTrackPiece = CurrentTrackPieces[(i + 1) % TrackLength];
 	}

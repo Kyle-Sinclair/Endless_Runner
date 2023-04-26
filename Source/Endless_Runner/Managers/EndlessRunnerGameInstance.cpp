@@ -51,5 +51,9 @@ void UEndlessRunnerGameInstance::ConfigureGameInstance()
 }void UEndlessRunnerGameInstance::RegisterTracks(TObjectPtr<ATrackManager> TrackManager)
 {
 	 PlayerTracks.Add(TrackManager);
+	 if (PlayerTracks.Contains(TrackManager))
+	 {
+		 GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Track Registered"));
+	 }
 
 }

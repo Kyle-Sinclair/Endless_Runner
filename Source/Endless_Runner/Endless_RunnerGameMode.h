@@ -33,6 +33,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<AEndless_RunnerCharacter> CharacterImplementation;
 
+	void SpawnTracks();
+	void SpawnPlayers();
 
 	TArray<FVector> ObstacleRelativeOffsets;
 	TArray<FVector> LaneOffSets;
