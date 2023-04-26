@@ -49,7 +49,7 @@ public:
 
 	UPROPERTY()
 	TObjectPtr<UObstacleFactory> ObstacleFactoryRef;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	TArray<ATrackPiece*> CurrentTrackPieces;
 	UPROPERTY(EditAnywhere)
 	float TrackLength;

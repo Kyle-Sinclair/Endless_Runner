@@ -24,8 +24,9 @@ void ATrackManager::BeginPlay()
 
 	TrackDelta = 0.f;
 	TrackDifficulty = 5.f;
+
 	InitializeTrack();
-	LinkTrackPieces();
+	//LinkTrackPieces();
 	
 
 	
@@ -60,8 +61,14 @@ void ATrackManager::ShiftTrack(float const DeltaTime) {
 
 void ATrackManager::InitializeTrack()
 {
+
+	
+	CurrentTrackPieces.Emplace(GetWorld()->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], GetActorLocation(), GetActorRotation()));
+
+	
+	CurrentTrackPieces.Reserve(TrackLength);
 	//Spawn first track segment and make it both tail and head segment
-	CurrentTrackPieces.Emplace(GetWorld()->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], FVector(0.f, 0.f, 0.f), GetActorRotation()));
+	CurrentTrackPieces.Emplace(GetWorld()->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], GetActorLocation(), GetActorRotation()));
 	TailTrackPiece = CurrentTrackPieces[0];
 	HeadTrackPiece = TailTrackPiece;
 	//Spawn each subsequent track piece and move the head to each one
@@ -75,6 +82,7 @@ void ATrackManager::InitializeTrack()
 	}
 
 	HeadTrackPiece = CurrentTrackPieces[TrackLength - 1];
+	
 }
 void ATrackManager::LinkTrackPieces()
 {

@@ -31,9 +31,10 @@ void UEndlessRunnerGameInstance::SpawnTracks()
 {
 	FVector SpawnPoint = StartingSpawnPoint;
 	FRotator SpawnRotation = FRotator(0.f, 0.f, 0.f);
-
+	FActorSpawnParameters spawnParam;
 	for (int i = 0; i < NumPlayers; i++) {
-		GetWorld()->SpawnActor<ATrackManager>(SpawnPoint + (i * SpawnOffset), SpawnRotation);
+		SpawnPoint = SpawnPoint + (i * SpawnOffset);
+		GetWorld()->SpawnActor(TrackImplementation, &SpawnPoint, &SpawnRotation, spawnParam);
 	}
 
 
