@@ -52,7 +52,7 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<ATrackPiece*> CurrentTrackPieces;
 	UPROPERTY(EditAnywhere)
-	float TrackLength;
+	int TrackLength;
 	UPROPERTY(EditAnywhere) 
 	float TrackSpeed;
 	

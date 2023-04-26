@@ -26,7 +26,7 @@ void ATrackManager::BeginPlay()
 	TrackDifficulty = 5.f;
 
 	InitializeTrack();
-	//LinkTrackPieces();
+	LinkTrackPieces();
 	
 
 	
@@ -62,8 +62,6 @@ void ATrackManager::ShiftTrack(float const DeltaTime) {
 void ATrackManager::InitializeTrack()
 {
 
-	
-	CurrentTrackPieces.Emplace(GetWorld()->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], GetActorLocation(), GetActorRotation()));
 
 	
 	CurrentTrackPieces.Reserve(TrackLength);
@@ -90,8 +88,8 @@ void ATrackManager::LinkTrackPieces()
 	CurrentTrackPieces[0]->PreviousTrackPiece = CurrentTrackPieces[TrackLength - 1];
 	for (int i = 1; i < CurrentTrackPieces.Num(); i++) {
 		//UE_LOG(LogTemp, Warning, TEXT("The Actor's name is %s"), *CurrentTrackPieces[i]->GetName());
-		CurrentTrackPieces[i]->PreviousTrackPiece = CurrentTrackPieces[(i - 1) % 10];
-		CurrentTrackPieces[i]->NextTrackPiece = CurrentTrackPieces[(i + 1) % 10];
+		CurrentTrackPieces[i]->PreviousTrackPiece = CurrentTrackPieces[(i - 1) % TrackLength];
+		CurrentTrackPieces[i]->NextTrackPiece = CurrentTrackPieces[(i + 1) % TrackLength];
 	}
 
 
