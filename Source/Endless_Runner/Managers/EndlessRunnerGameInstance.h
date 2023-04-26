@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "TrackManager.h"
+
+#include "../Endless_RunnerCharacter.h"
 #include "EndlessRunnerGameInstance.generated.h"
 
 /**
@@ -22,13 +24,18 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 		FVector SpawnOffset;
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf< ATrackManager> TrackImplementation;
+		TSubclassOf< ATrackManager> TrackImplementation;
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<AEndless_RunnerCharacter> CharacterImplementation;
 
-	TArray<TSubclassOf<ATrackManager>> PlayerTracks;
-
+	TArray<TObjectPtr<ATrackManager>> PlayerTracks;
+	
 	virtual void Init() override;
-	void SpawnTracks();
 	void SpawnPlayers();
 	void CreateObstacleSpawners();
 	void SplitScreen();
+	void ConfigureGameInstance();
+
+public:
+	void RegisterTracks(TObjectPtr<ATrackManager> TrackManager);
 };

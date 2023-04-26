@@ -68,8 +68,8 @@ void AEndless_RunnerCharacter::BeginPlay()
 	}
 	AEndless_RunnerGameMode* mymode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
 
-	FVector newLocation = mymode->LaneOffSets[LaneNumber++ % 3];
-	SetActorLocation(newLocation);
+	/*FVector newLocation = mymode->LaneOffSets[LaneNumber++ % 3];
+	SetActorLocation(newLocation);*/
 	UCapsuleComponent* Capsule = GetCapsuleComponent();
 	Capsule->OnComponentBeginOverlap.AddDynamic(this, &AEndless_RunnerCharacter::OnCollideWithObstacle);
 	//CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this,&AEndless_RunnerCharacter::OnCollideWithObstacle);

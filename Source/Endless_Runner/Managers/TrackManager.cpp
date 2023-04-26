@@ -63,18 +63,22 @@ void ATrackManager::InitializeTrack()
 {
 
 
-	
 	CurrentTrackPieces.Reserve(TrackLength);
 	//Spawn first track segment and make it both tail and head segment
 	CurrentTrackPieces.Emplace(GetWorld()->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], GetActorLocation(), GetActorRotation()));
 	TailTrackPiece = CurrentTrackPieces[0];
 	HeadTrackPiece = TailTrackPiece;
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
 	//Spawn each subsequent track piece and move the head to each one
 
 	for (int i = 1; i < TrackLength; i++) {
 		const FVector SpawnLocation = HeadTrackPiece->TrackSeamPoint->GetComponentLocation();
 		FRotator  SpawnRotation = HeadTrackPiece->TrackSeamPoint->GetComponentRotation();
-		CurrentTrackPieces.Emplace(GetWorld()->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], SpawnLocation, SpawnRotation));
+		CurrentTrackPieces.Emplace(NewObject<ATrackPiece>(ATrackPiece::StaticClass(),FName("Track Segment"), RF_NoFlags, PossibleTrackPieces[0]));
+
+		//CurrentTrackPieces.Emplace(GetWorld()->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], SpawnLocation, SpawnRotation, SpawnParams));
 		HeadTrackPiece = CurrentTrackPieces[i];
 		FObstacleCollection collection;
 	}

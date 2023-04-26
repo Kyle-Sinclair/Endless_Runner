@@ -35,7 +35,7 @@ void ATrackPiece::BeginPlay()
 	TrackSeamPoint->SetWorldLocation(GetActorLocation() + FVector(900.f, 0.f, 0.f));
 
 	if (GEngine) {
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Track piece created"));
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Track piece created"));
 	}
 
 	

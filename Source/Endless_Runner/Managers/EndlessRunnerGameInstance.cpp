@@ -2,18 +2,19 @@
 
 
 #include "EndlessRunnerGameInstance.h"
-
+#include "../Endless_RunnerGameMode.h"
 
 
 void UEndlessRunnerGameInstance::Init() {
 	Super::Init();
 
+	ConfigureGameInstance();
+
 	//Create A number of tracks equal to the number of players
 
-	SpawnTracks();
 
 	//Create player characters on each track and give them appropriate offsets
-
+	
 	SpawnPlayers();
 
 	//Give each track an obstacle spawner and register delegate methods
@@ -27,24 +28,11 @@ void UEndlessRunnerGameInstance::Init() {
 
 }
 
-void UEndlessRunnerGameInstance::SpawnTracks()
-{
-	FVector SpawnPoint = StartingSpawnPoint;
-	FRotator SpawnRotation = FRotator(0.f, 0.f, 0.f);
-	FActorSpawnParameters spawnParam;
-	for (int i = 0; i < NumPlayers; i++) {
-		SpawnPoint = SpawnPoint + (i * SpawnOffset);
-		GetWorld()->SpawnActor(TrackImplementation, &SpawnPoint, &SpawnRotation, spawnParam);
-	}
 
-
-
-
-}
 
 void UEndlessRunnerGameInstance::SpawnPlayers()
 {
-
+	
 }
 
 void UEndlessRunnerGameInstance::CreateObstacleSpawners()
@@ -54,5 +42,14 @@ void UEndlessRunnerGameInstance::CreateObstacleSpawners()
 
 void UEndlessRunnerGameInstance::SplitScreen()
 {
+
+}
+
+void UEndlessRunnerGameInstance::ConfigureGameInstance()
+{
+	
+}void UEndlessRunnerGameInstance::RegisterTracks(TObjectPtr<ATrackManager> TrackManager)
+{
+	 PlayerTracks.Add(TrackManager);
 
 }
