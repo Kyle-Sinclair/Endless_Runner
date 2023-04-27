@@ -47,8 +47,10 @@ void UEndlessRunnerGameInstance::SplitScreen()
 
 void UEndlessRunnerGameInstance::ConfigureGameInstance()
 {
-	
-}void UEndlessRunnerGameInstance::RegisterTracks(TObjectPtr<ATrackManager> TrackManager)
+
+}
+
+void UEndlessRunnerGameInstance::RegisterTracks(TObjectPtr<ATrackManager> TrackManager)
 {
 	 PlayerTracks.Add(TrackManager);
 	 if (PlayerTracks.Contains(TrackManager))

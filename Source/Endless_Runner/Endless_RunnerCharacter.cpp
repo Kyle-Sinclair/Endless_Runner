@@ -86,18 +86,33 @@ void AEndless_RunnerCharacter::OnCollideWithObstacle(UPrimitiveComponent* /*igno
 
 void AEndless_RunnerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
+	APlayerController* PlayerController = Cast<APlayerController>(Controller);
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
-		//Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		int32 id = PlayerController->GetLocalPlayer()->GetControllerId();
+		if (id == 0)
+		{
 
-		//Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEndless_RunnerCharacter::Move);
+			//Jumping
+			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
-		//Looking
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEndless_RunnerCharacter::Look);
+			//Moving
+			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEndless_RunnerCharacter::Move);
+
+			//Looking
+			EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEndless_RunnerCharacter::Look);
+		}
+		else if (id == 1)
+		{
+			//Jumping
+			EnhancedInputComponent->BindAction(JumpAction2nd, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+
+			//Moving
+			EnhancedInputComponent->BindAction(MoveAction2nd, ETriggerEvent::Triggered, this, &AEndless_RunnerCharacter::Move);
+
+			//Looking
+			EnhancedInputComponent->BindAction(LookAction2nd, ETriggerEvent::Triggered, this, &AEndless_RunnerCharacter::Look);
+		}
 
 	}
 
