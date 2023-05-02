@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "Engine/EngineTypes.h"
+#include "Managers/TrackManager.h"
 #include "Endless_RunnerCharacter.generated.h"
 
 
@@ -23,7 +25,9 @@ class AEndless_RunnerCharacter : public ACharacter
 	
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputMappingContext* DefaultMappingContext;
+	class UInputMappingContext* DefaultMappingContext;	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputMappingContext* SecondMappingContext;
 
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -36,24 +40,22 @@ class AEndless_RunnerCharacter : public ACharacter
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* JumpAction2nd;
 
-	/** Move Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* MoveAction2nd;
-
-	/** Look Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* LookAction2nd;
 
 	UPROPERTY(VisibleAnywhere)
-	int32 LaneNumber;
+	int32 LaneNumber;	
+	UPROPERTY(VisibleAnywhere)
+	FVector AnchorPosition;
+	UPROPERTY(VisibleAnywhere)
+
+	TObjectPtr<ATrackManager> BoundTrack;
+
+
 
 public:
 	AEndless_RunnerCharacter();
 	void OnBeginOverlap();
-
+	void BindToTrack(TObjectPtr<ATrackManager> OwningTrack);
 
 protected:
 
@@ -75,6 +77,10 @@ protected:
 	void OnCollideWithObstacle(UPrimitiveComponent* collider, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 public:
+
+	virtual void Tick(float DeltaSeconds) override;
+	void DoJump();
+
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/

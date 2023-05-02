@@ -9,7 +9,11 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
+#include "Managers/TrackManager.h"
+
 #include "EnhancedInputSubsystems.h"
+
+
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -59,8 +63,12 @@ void AEndless_RunnerCharacter::BeginPlay()
 	Super::BeginPlay();
 	LaneNumber = 1;
 	//Add Input Mapping Context
+
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
+		int32 id = PlayerController->GetLocalPlayer()->GetControllerId();
+		UE_LOG(LogTemp, Warning, TEXT("PLayer Controller pointer was valid for controller id %i"), id);
+
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
@@ -68,11 +76,9 @@ void AEndless_RunnerCharacter::BeginPlay()
 	}
 	AEndless_RunnerGameMode* mymode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
 
-	/*FVector newLocation = mymode->LaneOffSets[LaneNumber++ % 3];
-	SetActorLocation(newLocation);*/
 	UCapsuleComponent* Capsule = GetCapsuleComponent();
 	Capsule->OnComponentBeginOverlap.AddDynamic(this, &AEndless_RunnerCharacter::OnCollideWithObstacle);
-	//CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this,&AEndless_RunnerCharacter::OnCollideWithObstacle);
+
 }
 
 void AEndless_RunnerCharacter::OnCollideWithObstacle(UPrimitiveComponent* /*ignored*/, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -90,37 +96,36 @@ void AEndless_RunnerCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 		int32 id = PlayerController->GetLocalPlayer()->GetControllerId();
-		if (id == 0)
-		{
+		UE_LOG(LogTemp, Warning, TEXT("PLayer controller id is %i"), id);
+		
+			UE_LOG(LogTemp, Warning, TEXT("Binding actions for player %i"),id);
 
 			//Jumping
-			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::Jump);
 
 			//Moving
 			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEndless_RunnerCharacter::Move);
 
 			//Looking
 			EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEndless_RunnerCharacter::Look);
-		}
-		else if (id == 1)
-		{
-			//Jumping
-			EnhancedInputComponent->BindAction(JumpAction2nd, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
-
-			//Moving
-			EnhancedInputComponent->BindAction(MoveAction2nd, ETriggerEvent::Triggered, this, &AEndless_RunnerCharacter::Move);
-
-			//Looking
-			EnhancedInputComponent->BindAction(LookAction2nd, ETriggerEvent::Triggered, this, &AEndless_RunnerCharacter::Look);
-		}
-
+			EnhancedInputComponent->bBlockInput = false;
 	}
+
+}
+void AEndless_RunnerCharacter::Tick(float DeltaSeconds) {
+	Super::Tick(DeltaSeconds);
 
 }
 
 void AEndless_RunnerCharacter::Move(const FInputActionValue& Value)
 {
-	// input is a Vector2D
+	
+	//Player input testing
+
+	APlayerController* PlayerController = Cast<APlayerController>(Controller);
+	int32 id = PlayerController->GetLocalPlayer()->GetControllerId();
+
+	UE_LOG(LogTemp, Warning, TEXT("PLayer controller id is %i and it is recieving a move command"), id);
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
@@ -150,10 +155,15 @@ void AEndless_RunnerCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
-
+void AEndless_RunnerCharacter::DoJump() {
+	Super::Jump();
+}
 void AEndless_RunnerCharacter::OnBeginOverlap()
 {
 
+}
+void AEndless_RunnerCharacter::BindToTrack(TObjectPtr<ATrackManager> OwningTrack) {
+	BoundTrack = OwningTrack;
 }
 
 

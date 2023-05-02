@@ -4,6 +4,8 @@
 #include "Endless_RunnerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Managers/EndlessRunnerGameInstance.h"
+#include "Managers/TrackManager.h"
+#include "Engine/EngineTypes.h"
 
 #include "UObject/ConstructorHelpers.h"
 
@@ -35,7 +37,6 @@ AEndless_RunnerGameMode::AEndless_RunnerGameMode()
 
 void AEndless_RunnerGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
-	//NumPlayers = 2;
 	Super::InitGame(MapName, Options, ErrorMessage);
 	
 	
@@ -56,13 +57,15 @@ void AEndless_RunnerGameMode::SpawnTracks()
 	FVector SpawnPoint = StartingSpawnPoint;
 	FRotator SpawnRotation = FRotator(0.f, 0.f, 0.f);
 	FActorSpawnParameters spawnParam;
-
+	TObjectPtr<ADualPlayerController> DPController = CastChecked<ADualPlayerController>(GetWorld()->GetFirstPlayerController());
 
 	for (int i = 0; i < NumPlayers; i++) {
 		SpawnPoint = SpawnPoint + (i * SpawnOffset);
 		TObjectPtr<ATrackManager> TrackManager = WorldRef->SpawnActor<ATrackManager>(TrackImplementation, SpawnPoint, SpawnRotation, spawnParam);
 		Instance->RegisterTracks(TrackManager);
-
+		AEndless_RunnerCharacter* Character = WorldRef->SpawnActor<AEndless_RunnerCharacter>(CharacterImplementation, SpawnPoint + FVector(0.f, 0.f, 500.f), SpawnRotation, spawnParam);
+		Character->BindToTrack(TrackManager);
+		DPController->RegisterPlayer(Character, i);
 	}
 }
 
@@ -72,26 +75,8 @@ void AEndless_RunnerGameMode::SpawnPlayers()
 	FActorSpawnParameters SpawnParam;
 	UWorld* WorldRef = GetWorld();
 	FString out;
-	WorldRef->GetGameInstance()->CreateLocalPlayer(0,out, true);
-	WorldRef->GetGameInstance()->CreateLocalPlayer(1, out,true);
-	//for (int i = 0; i < 2; i++) {
 
-		//APawn* playerSpawned =Cast<APawn>( WorldRef->SpawnActor<AActor>(CharacterImplementation, SpawnPosition, FRotator(0.f, 0.f, 0.f), SpawnParam));
-		//APlayerController* playerSpawned = UGameplayStatics::CreatePlayer(WorldRef, -1, true);
-	//	APlayerController* playerSpawned = UGameplayStatics::CreatePlayer(WorldRef, true);
-
-		/*if (playerSpawned == nullptr) {
-			UE_LOG(LogTemp, Warning,TEXT( "Nullpointer found"));
-			return;
-		}
-		playerSpawned->GetPawn()->SetActorLocation(SpawnPosition);*/
-		//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Red, FString::Printf(TEXT("Actor at position %f"), SpawnPosition.Y));
-
-		//SpawnPosition += FVector(0.f, 1200, 0.f);
-	//UGameViewportClient
-	//}
 }
-
 void AEndless_RunnerGameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
 {
 	Super::HandleStartingNewPlayer_Implementation(NewPlayer);

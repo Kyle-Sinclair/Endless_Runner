@@ -76,7 +76,8 @@ public:
 	void ShiftTrack(float const DeltaTime);
 	UFUNCTION()
 	void SpawnObstaclesOnTrack();
-
+	TArray<FVector> LaneOffsets;
+	
 	
 private:
 	void RemoveTrackObstacles(TWeakObjectPtr<ATrackPiece> TailTrackPiece);

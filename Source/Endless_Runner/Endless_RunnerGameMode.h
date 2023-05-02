@@ -7,6 +7,7 @@
 
 #include "Endless_RunnerCharacter.h"
 #include "Managers/TrackManager.h"
+#include "Managers/DualPlayerController.h"
 
 #include "Endless_RunnerGameMode.generated.h"
 
@@ -32,6 +33,9 @@ public:
 		TSubclassOf< ATrackManager> TrackImplementation;
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<AEndless_RunnerCharacter> CharacterImplementation;
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<ADualPlayerController> DualPlayerController;
+
 
 	void SpawnTracks();
 	void SpawnPlayers();

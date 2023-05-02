@@ -2,6 +2,8 @@
 #include "TrackManager.h"
 #include "../Endless_RunnerGameMode.h"
 #include "Math/UnrealMathUtility.h"
+#include "Kismet/GameplayStatics.h"
+
 #include "../TrackPiece.h"
 
 
@@ -27,7 +29,9 @@ void ATrackManager::BeginPlay()
 
 	InitializeTrack();
 	LinkTrackPieces();
-	
+
+
+
 
 	
 
