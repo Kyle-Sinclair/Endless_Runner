@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "../Endless_RunnerCharacter.h"
-
+#include "../UI/LifeTotalWidget.h"
 #include "DualPlayerController.generated.h"
 
 /**
@@ -27,12 +27,19 @@ public:
 	void JumpPlayer1();
 	UFUNCTION()
 	void JumpPlayer2();
-
+	UFUNCTION()
+	void UpdateHealthUI(int32 NewHealth, int32 PlayerId);
+	
 	void RegisterPlayer(TObjectPtr<AEndless_RunnerCharacter> Character, int index);
 	virtual void BeginPlay() override;
 	void SetupPlayerInputComponent();
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		class UInputMappingContext* DefaultMappingContext;
+		class UInputMappingContext* DefaultMappingContext;	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite , Category = UI, meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<ULifeTotalWidget> LifeHUDImplementation;
+	
+	UPROPERTY()
+	TObjectPtr<ULifeTotalWidget> Player1LifeTotal;
 	UPROPERTY(VisibleAnywhere,  meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<AEndless_RunnerCharacter> Player1;
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
@@ -47,4 +54,5 @@ public:
 		class UInputAction* MoveAction2;
 
 
+	
 };

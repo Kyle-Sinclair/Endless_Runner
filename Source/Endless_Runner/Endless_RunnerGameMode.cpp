@@ -80,6 +80,7 @@ void AEndless_RunnerGameMode::SpawnPlayers()
 	for (int i = 0; i < NumPlayers; i++) {
 		TWeakObjectPtr < ATrackManager> TrackManager = Instance->GetTrack(i);
 		AEndless_RunnerCharacter* Character = WorldRef->SpawnActor<AEndless_RunnerCharacter>(CharacterImplementation, SpawnPoint + FVector(0.f, 0.f, 200.f), SpawnRotation, spawnParam);
+		Character->SetPlayerId(i);
 		Character->BindToTrack(TrackManager);
 		DPController->RegisterPlayer(Character, i);
 	}

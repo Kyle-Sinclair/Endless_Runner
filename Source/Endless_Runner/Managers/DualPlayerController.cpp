@@ -11,6 +11,7 @@
 
 ADualPlayerController::ADualPlayerController() {
 	InputComponent = CreateDefaultSubobject<UInputComponent>("Input Component");
+	Player1LifeTotal = CreateDefaultSubobject<ULifeTotalWidget>("Player 1 Life");
 
 }
 
@@ -27,22 +28,30 @@ void ADualPlayerController::BeginPlay()
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
-	
 	AEndless_RunnerGameMode* mymode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
-	
 		SetupPlayerInputComponent();
-
+		
+		Player1LifeTotal = CreateWidget<ULifeTotalWidget>(this, LifeHUDImplementation);
+		Player1LifeTotal->AddToPlayerScreen(9999);
 }
 
 void ADualPlayerController::RegisterPlayer(TObjectPtr<AEndless_RunnerCharacter> NewCharacter, int index) {
 	if (index == 0) {
 		Player1 = NewCharacter;
+		Player1->OnHealthUpdated.AddDynamic(this, &ADualPlayerController::UpdateHealthUI);
+		UpdateHealthUI(Player1->Health, 0);
 	}
 	else {
 		Player2 = NewCharacter;
+		Player2->OnHealthUpdated.AddDynamic(this, &ADualPlayerController::UpdateHealthUI);
+		UpdateHealthUI(Player2->Health, 1);
+
 	}
 }
 	
+void ADualPlayerController::UpdateHealthUI(int32 NewHealth, int32 PlayerId) {
+	Player1LifeTotal->UpdateLifeTotal(NewHealth, PlayerId);
+}
 
 void ADualPlayerController::SetupPlayerInputComponent()
 {

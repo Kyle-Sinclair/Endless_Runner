@@ -9,6 +9,7 @@
 #include "Managers/TrackManager.h"
 #include "Endless_RunnerCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FUpdateHealthDelegate, int32, Health, int32, PlayerID);
 
 UCLASS(config=Game)
 class AEndless_RunnerCharacter : public ACharacter
@@ -44,12 +45,14 @@ class AEndless_RunnerCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere)
 	int32 LaneNumber;	
+
 	UPROPERTY(VisibleAnywhere)
 	FVector AnchorPosition;
 	UPROPERTY(VisibleAnywhere)
 
 	TWeakObjectPtr<ATrackManager> BoundTrack;
 
+	
 
 
 public:
@@ -57,15 +60,19 @@ public:
 	void OnBeginOverlap();
 	void BindToTrack(TObjectPtr<ATrackManager> OwningTrack);
 	void BindToTrack(TWeakObjectPtr<ATrackManager> OwningTrack);
-
+	void SetPlayerId(int32 Id);
+	UPROPERTY()
+	FUpdateHealthDelegate OnHealthUpdated;
+	UPROPERTY(VisibleAnywhere)
+	int32 Health;
 protected:
 	UPROPERTY(VisibleAnywhere)
 
 	TArray<FVector> LaneOffSets;
 
 	UPROPERTY(EditDefaultsOnly)
-		float LaneWidth = 250.f;
-
+	float LaneWidth = 250.f;
+	int32 PlayerId;
 
 protected:
 	// APawn interface

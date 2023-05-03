@@ -66,15 +66,12 @@ void AEndless_RunnerCharacter::BeginPlay()
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
-		int32 id = PlayerController->GetLocalPlayer()->GetControllerId();
-		UE_LOG(LogTemp, Warning, TEXT("PLayer Controller pointer was valid for controller id %i"), id);
-
+		
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
-	AEndless_RunnerGameMode* mymode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
 
 	UCapsuleComponent* Capsule = GetCapsuleComponent();
 	Capsule->OnComponentBeginOverlap.AddDynamic(this, &AEndless_RunnerCharacter::OnCollideWithObstacle);
@@ -84,6 +81,8 @@ void AEndless_RunnerCharacter::BeginPlay()
 void AEndless_RunnerCharacter::OnCollideWithObstacle(UPrimitiveComponent* /*ignored*/, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Blue, TEXT("Actor Collision"));
+	Health--;
+	OnHealthUpdated.Broadcast(Health, PlayerId);
 	OtherActor->Destroy();
 }
 
@@ -94,22 +93,8 @@ void AEndless_RunnerCharacter::SetupPlayerInputComponent(class UInputComponent* 
 {
 	APlayerController* PlayerController = Cast<APlayerController>(Controller);
 	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
-		int32 id = PlayerController->GetLocalPlayer()->GetControllerId();
-		UE_LOG(LogTemp, Warning, TEXT("PLayer controller id is %i"), id);
-		
-			UE_LOG(LogTemp, Warning, TEXT("Binding actions for player %i"),id);
-
-			//Jumping
-			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::Jump);
-
-			//Moving
-			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEndless_RunnerCharacter::Move);
-
-			//Looking
-			EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEndless_RunnerCharacter::Look);
-			EnhancedInputComponent->bBlockInput = false;
-	}
+	//if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
+	
 
 }
 void AEndless_RunnerCharacter::Tick(float DeltaSeconds) {
@@ -124,18 +109,14 @@ void AEndless_RunnerCharacter::Move(const FInputActionValue& Value)
 
 
 	FVector2D MovementVector = Value.Get<FVector2D>();
-
-	
-	
 	LaneNumber += MovementVector.X;
 		if (LaneNumber < 0) {
 			LaneNumber = 2;
 		}
 		LaneNumber = LaneNumber % 3;
 
-		FVector newLocation = LaneOffSets[LaneNumber];
-		SetActorLocation(newLocation);
-	
+	FVector newLocation = LaneOffSets[LaneNumber];
+	SetActorLocation(newLocation);
 }
 
 void AEndless_RunnerCharacter::Look(const FInputActionValue& Value)
@@ -182,6 +163,10 @@ void AEndless_RunnerCharacter::BindToTrack(TWeakObjectPtr<ATrackManager> OwningT
 		SetActorLocation(LaneOffSets[LaneNumber]);
 	}
 
+}
+
+void AEndless_RunnerCharacter::SetPlayerId(int32 Id) {
+	PlayerId = Id;
 }
 
 
