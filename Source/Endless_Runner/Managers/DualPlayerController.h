@@ -20,7 +20,14 @@ class ENDLESS_RUNNER_API ADualPlayerController : public APlayerController
 public:
 	ADualPlayerController();
 	UFUNCTION()
-	void TestFunction();
+	void MovePlayer1(const FInputActionValue& Value);
+	UFUNCTION()
+	void MovePlayer2(const FInputActionValue& Value);
+	UFUNCTION()
+	void JumpPlayer1();
+	UFUNCTION()
+	void JumpPlayer2();
+
 	void RegisterPlayer(TObjectPtr<AEndless_RunnerCharacter> Character, int index);
 	virtual void BeginPlay() override;
 	void SetupPlayerInputComponent();
@@ -32,5 +39,12 @@ public:
 		TObjectPtr<AEndless_RunnerCharacter> Player2;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* JumpAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputAction* JumpAction2;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputAction* MoveAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputAction* MoveAction2;
+
 
 };

@@ -17,8 +17,7 @@ class ENDLESS_RUNNER_API UEndlessRunnerGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 private:
-	UPROPERTY(EditDefaultsOnly)
-		int NumPlayers; 
+	
 	UPROPERTY(EditDefaultsOnly)
 		FVector StartingSpawnPoint;
 	UPROPERTY(EditDefaultsOnly)
@@ -31,11 +30,12 @@ private:
 	TArray<TObjectPtr<ATrackManager>> PlayerTracks;
 	
 	virtual void Init() override;
-	void SpawnPlayers();
-	void CreateObstacleSpawners();
-	void SplitScreen();
-	void ConfigureGameInstance();
+public:
+	UPROPERTY()
+	int NumPlayers;
 
 public:
 	void RegisterTracks(TObjectPtr<ATrackManager> TrackManager);
+	TWeakObjectPtr<ATrackManager> GetTrack(int index);
+
 };

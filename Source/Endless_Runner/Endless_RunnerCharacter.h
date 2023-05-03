@@ -48,7 +48,7 @@ class AEndless_RunnerCharacter : public ACharacter
 	FVector AnchorPosition;
 	UPROPERTY(VisibleAnywhere)
 
-	TObjectPtr<ATrackManager> BoundTrack;
+	TWeakObjectPtr<ATrackManager> BoundTrack;
 
 
 
@@ -56,15 +56,16 @@ public:
 	AEndless_RunnerCharacter();
 	void OnBeginOverlap();
 	void BindToTrack(TObjectPtr<ATrackManager> OwningTrack);
+	void BindToTrack(TWeakObjectPtr<ATrackManager> OwningTrack);
 
 protected:
+	UPROPERTY(VisibleAnywhere)
 
-	/** Called for movement input */
-	void Move(const FInputActionValue& Value);
+	TArray<FVector> LaneOffSets;
 
-	/** Called for looking input */
-	void Look(const FInputActionValue& Value);
-	
+	UPROPERTY(EditDefaultsOnly)
+		float LaneWidth = 250.f;
+
 
 protected:
 	// APawn interface
@@ -80,6 +81,11 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 	void DoJump();
+	/** Called for movement input */
+	void Move(const FInputActionValue& Value);
+
+	/** Called for looking input */
+	void Look(const FInputActionValue& Value);
 
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

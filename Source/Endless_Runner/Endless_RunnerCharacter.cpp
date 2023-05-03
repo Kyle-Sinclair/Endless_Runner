@@ -122,25 +122,20 @@ void AEndless_RunnerCharacter::Move(const FInputActionValue& Value)
 	
 	//Player input testing
 
-	APlayerController* PlayerController = Cast<APlayerController>(Controller);
-	int32 id = PlayerController->GetLocalPlayer()->GetControllerId();
 
-	UE_LOG(LogTemp, Warning, TEXT("PLayer controller id is %i and it is recieving a move command"), id);
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr)
-	{
 	
-		LaneNumber += MovementVector.X;
+	
+	LaneNumber += MovementVector.X;
 		if (LaneNumber < 0) {
 			LaneNumber = 2;
 		}
 		LaneNumber = LaneNumber % 3;
 
-		AEndless_RunnerGameMode* mymode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
-		FVector newLocation = mymode->LaneOffSets[LaneNumber];
+		FVector newLocation = LaneOffSets[LaneNumber];
 		SetActorLocation(newLocation);
-	}
+	
 }
 
 void AEndless_RunnerCharacter::Look(const FInputActionValue& Value)
@@ -164,6 +159,29 @@ void AEndless_RunnerCharacter::OnBeginOverlap()
 }
 void AEndless_RunnerCharacter::BindToTrack(TObjectPtr<ATrackManager> OwningTrack) {
 	BoundTrack = OwningTrack;
+
+	FVector LaneAdjustment = FVector(0.f,LaneWidth,0.f);
+	FVector StartPosition = OwningTrack->GetActorLocation() + FVector(1800.f,LaneWidth,200.f);
+	LaneOffSets.Add(StartPosition);
+	LaneOffSets.Add(StartPosition + LaneAdjustment);
+	LaneOffSets.Add(StartPosition + 2 * LaneAdjustment);
+	LaneNumber = 1;
+	SetActorLocation(LaneOffSets[LaneNumber]);
+
+}
+void AEndless_RunnerCharacter::BindToTrack(TWeakObjectPtr<ATrackManager> OwningTrack) {
+	if (OwningTrack.IsValid()) {
+		BoundTrack = OwningTrack;
+
+		FVector LaneAdjustment = FVector(0.f, LaneWidth, 0.f);
+		FVector StartPosition = OwningTrack->GetActorLocation() + FVector(1800.f, LaneWidth, 200.f);
+		LaneOffSets.Add(StartPosition);
+		LaneOffSets.Add(StartPosition + LaneAdjustment);
+		LaneOffSets.Add(StartPosition + 2 * LaneAdjustment);
+		LaneNumber = 1;
+		SetActorLocation(LaneOffSets[LaneNumber]);
+	}
+
 }
 
 

@@ -50,12 +50,30 @@ void ADualPlayerController::SetupPlayerInputComponent()
 	
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(GetWorld()->GetFirstPlayerController()->FindComponentByClass<UEnhancedInputComponent>());
 
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ADualPlayerController::TestFunction);
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ADualPlayerController::JumpPlayer1);
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ADualPlayerController::MovePlayer1);
+	EnhancedInputComponent->BindAction(JumpAction2, ETriggerEvent::Completed, this, &ADualPlayerController::JumpPlayer2);
+	EnhancedInputComponent->BindAction(MoveAction2, ETriggerEvent::Triggered, this, &ADualPlayerController::MovePlayer2);
 
 }
 
-void ADualPlayerController::TestFunction() {
+void ADualPlayerController::JumpPlayer1() {
 
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Black, TEXT("Input recieved"));
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Yellow, TEXT("Input recieved"));
 	Player1->DoJump();
+}
+void ADualPlayerController::MovePlayer1(const FInputActionValue& Value) {
+
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Yellow, TEXT("Input recieved"));
+	Player1->Move(Value);
+}
+void ADualPlayerController::JumpPlayer2() {
+
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Yellow, TEXT("Input recieved"));
+	Player2->DoJump();
+}
+void ADualPlayerController::MovePlayer2(const FInputActionValue& Value) {
+
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Yellow, TEXT("Input recieved"));
+	Player2->Move(Value);
 }

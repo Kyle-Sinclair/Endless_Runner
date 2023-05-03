@@ -17,15 +17,15 @@ AEndless_RunnerGameMode::AEndless_RunnerGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
-	ObstacleRelativeOffsets.Add(FVector(250.f, -150.f, -150.f));
-	ObstacleRelativeOffsets.Add(FVector(550.f, -150.f, -150.f));
-	ObstacleRelativeOffsets.Add(FVector(850.f, -150.f, -150.f));
-	ObstacleRelativeOffsets.Add(FVector(250.f, -450.f, -150.f));
-	ObstacleRelativeOffsets.Add(FVector(550.f, -450.f, -150.f));
-	ObstacleRelativeOffsets.Add(FVector(850.f, -450.f, -150.f)); 
-	ObstacleRelativeOffsets.Add(FVector(250.f, -750.f, -150.f));
-	ObstacleRelativeOffsets.Add(FVector(550.f, -750.f, -150.f));
-	ObstacleRelativeOffsets.Add(FVector(850.f, -750.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(250.f, -200.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(550.f, -200.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(850.f, -200.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(250.f, -400.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(550.f, -400.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(850.f, -400.f, -150.f)); 
+	ObstacleRelativeOffsets.Add(FVector(250.f, -600.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(550.f, -600.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(850.f, -600.f, -150.f));
 
 	LaneOffSets.Add(FVector(1550.f, 150.f, 200.f));
 	LaneOffSets.Add(FVector(1550.f, 450.f, 200.f));
@@ -45,9 +45,13 @@ void AEndless_RunnerGameMode::InitGame(const FString& MapName, const FString& Op
 void AEndless_RunnerGameMode::StartPlay()
 {
 	Super::StartPlay();
+	LinkController();
 	SpawnTracks();
 	SpawnPlayers();
 	
+}
+void AEndless_RunnerGameMode::LinkController() {
+	DPController = CastChecked<ADualPlayerController>(GetWorld()->GetFirstPlayerController());
 }
 
 void AEndless_RunnerGameMode::SpawnTracks()
@@ -57,31 +61,34 @@ void AEndless_RunnerGameMode::SpawnTracks()
 	FVector SpawnPoint = StartingSpawnPoint;
 	FRotator SpawnRotation = FRotator(0.f, 0.f, 0.f);
 	FActorSpawnParameters spawnParam;
-	TObjectPtr<ADualPlayerController> DPController = CastChecked<ADualPlayerController>(GetWorld()->GetFirstPlayerController());
 
 	for (int i = 0; i < NumPlayers; i++) {
 		SpawnPoint = SpawnPoint + (i * SpawnOffset);
 		TObjectPtr<ATrackManager> TrackManager = WorldRef->SpawnActor<ATrackManager>(TrackImplementation, SpawnPoint, SpawnRotation, spawnParam);
 		Instance->RegisterTracks(TrackManager);
-		AEndless_RunnerCharacter* Character = WorldRef->SpawnActor<AEndless_RunnerCharacter>(CharacterImplementation, SpawnPoint + FVector(0.f, 0.f, 500.f), SpawnRotation, spawnParam);
-		Character->BindToTrack(TrackManager);
-		DPController->RegisterPlayer(Character, i);
 	}
 }
 
 void AEndless_RunnerGameMode::SpawnPlayers()
 {
-	FVector SpawnPosition = FVector(0.f, -800.f, 200.f);
-	FActorSpawnParameters SpawnParam;
 	UWorld* WorldRef = GetWorld();
-	FString out;
+	UEndlessRunnerGameInstance* Instance = Cast<UEndlessRunnerGameInstance>(GetWorld()->GetGameInstance());
+	FVector SpawnPoint = StartingSpawnPoint;
+	FRotator SpawnRotation = FRotator(0.f, 0.f, 0.f);
+	FActorSpawnParameters spawnParam;
+
+	for (int i = 0; i < NumPlayers; i++) {
+		TWeakObjectPtr < ATrackManager> TrackManager = Instance->GetTrack(i);
+		AEndless_RunnerCharacter* Character = WorldRef->SpawnActor<AEndless_RunnerCharacter>(CharacterImplementation, SpawnPoint + FVector(0.f, 0.f, 200.f), SpawnRotation, spawnParam);
+		Character->BindToTrack(TrackManager);
+		DPController->RegisterPlayer(Character, i);
+	}
 
 }
 void AEndless_RunnerGameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
 {
 	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 
-	//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Red, TEXT("Actor reference valid"));
 
 }
 

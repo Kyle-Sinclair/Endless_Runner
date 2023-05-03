@@ -8,46 +8,10 @@
 void UEndlessRunnerGameInstance::Init() {
 	Super::Init();
 
-	ConfigureGameInstance();
-
-	//Create A number of tracks equal to the number of players
-
-
-	//Create player characters on each track and give them appropriate offsets
-	
-	SpawnPlayers();
-
-	//Give each track an obstacle spawner and register delegate methods
-
-	CreateObstacleSpawners();
-
-	//Split the screen into an appropriate number of slices
-	SplitScreen();
-
-	PlayerTracks.Reserve(NumPlayers);
-
 }
+TWeakObjectPtr<ATrackManager> UEndlessRunnerGameInstance::GetTrack(int index) {
 
-
-
-void UEndlessRunnerGameInstance::SpawnPlayers()
-{
-	
-}
-
-void UEndlessRunnerGameInstance::CreateObstacleSpawners()
-{
-
-}
-
-void UEndlessRunnerGameInstance::SplitScreen()
-{
-
-}
-
-void UEndlessRunnerGameInstance::ConfigureGameInstance()
-{
-
+	return PlayerTracks[index];
 }
 
 void UEndlessRunnerGameInstance::RegisterTracks(TObjectPtr<ATrackManager> TrackManager)

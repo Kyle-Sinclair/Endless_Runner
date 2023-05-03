@@ -34,13 +34,16 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<AEndless_RunnerCharacter> CharacterImplementation;
 	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<ADualPlayerController> DualPlayerController;
+		TSubclassOf<ADualPlayerController> DualPlayerControllerImplmentation;
+	TArray<FVector> ObstacleRelativeOffsets;
 
+protected:
+	void LinkController();
 
 	void SpawnTracks();
 	void SpawnPlayers();
+	TObjectPtr<ADualPlayerController> DPController;
 
-	TArray<FVector> ObstacleRelativeOffsets;
 	TArray<FVector> LaneOffSets;
 	TArray<FVector> TrackStartingPositions;
 
