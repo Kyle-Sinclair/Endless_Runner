@@ -10,6 +10,8 @@
 #include "Endless_RunnerCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FUpdateHealthDelegate, int32, Health, int32, PlayerID);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAnnounceKilledDelegate, int32, Health);
+
 
 UCLASS(config=Game)
 class AEndless_RunnerCharacter : public ACharacter
@@ -63,6 +65,8 @@ public:
 	void SetPlayerId(int32 Id);
 	UPROPERTY()
 	FUpdateHealthDelegate OnHealthUpdated;
+	UPROPERTY()
+	FAnnounceKilledDelegate OnKilled;
 	UPROPERTY(VisibleAnywhere)
 	int32 Health;
 protected:

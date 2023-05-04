@@ -76,12 +76,16 @@ void AEndless_RunnerCharacter::BeginPlay()
 	UCapsuleComponent* Capsule = GetCapsuleComponent();
 	Capsule->OnComponentBeginOverlap.AddDynamic(this, &AEndless_RunnerCharacter::OnCollideWithObstacle);
 
+
 }
 
 void AEndless_RunnerCharacter::OnCollideWithObstacle(UPrimitiveComponent* /*ignored*/, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Blue, TEXT("Actor Collision"));
 	Health--;
+	if (Health <= 0) {
+		OnKilled.Broadcast(PlayerId);
+	}
 	OnHealthUpdated.Broadcast(Health, PlayerId);
 	OtherActor->Destroy();
 }

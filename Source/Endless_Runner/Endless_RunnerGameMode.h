@@ -30,13 +30,16 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 		FVector SpawnOffset;
 	UPROPERTY(EditDefaultsOnly)
+		int32 StartingHealth;
+	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf< ATrackManager> TrackImplementation;
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<AEndless_RunnerCharacter> CharacterImplementation;
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<ADualPlayerController> DualPlayerControllerImplmentation;
 	TArray<FVector> ObstacleRelativeOffsets;
-
+	UFUNCTION()
+	void FinishGame(int32 LosingPlayerId);
 protected:
 	void LinkController();
 

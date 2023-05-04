@@ -36,6 +36,10 @@ public:
 
 public:
 	void RegisterTracks(TObjectPtr<ATrackManager> TrackManager);
+
+	void SaveHighScoreToFile(FString FilePath, bool& bAcccessSuccess, FString& OutMessage);
+	FString LoadHighScoreFromFile(FString FilePath, FString Data, bool& bAcccessSuccess, FString& OutMessage);
+
 	TWeakObjectPtr<ATrackManager> GetTrack(int index);
 
 };

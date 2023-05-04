@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "../Endless_RunnerCharacter.h"
 #include "../UI/LifeTotalWidget.h"
+#include "../UI/HUDWidget.h"
 #include "DualPlayerController.generated.h"
 
 /**
@@ -28,6 +29,8 @@ public:
 	UFUNCTION()
 	void JumpPlayer2();
 	UFUNCTION()
+	void PauseGame();
+	UFUNCTION()
 	void UpdateHealthUI(int32 NewHealth, int32 PlayerId);
 	
 	void RegisterPlayer(TObjectPtr<AEndless_RunnerCharacter> Character, int index);
@@ -35,11 +38,15 @@ public:
 	void SetupPlayerInputComponent();
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputMappingContext* DefaultMappingContext;	
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite , Category = UI, meta = (AllowPrivateAccess = "true"))
-		TSubclassOf<ULifeTotalWidget> LifeHUDImplementation;
+		TSubclassOf<UHUDWidget> HUDImplementation;
 	
+
 	UPROPERTY()
-	TObjectPtr<ULifeTotalWidget> Player1LifeTotal;
+	TObjectPtr<UHUDWidget> HUD;
+	UPROPERTY()
+	TObjectPtr<class AEndless_RunnerGameMode> GameMode;
 	UPROPERTY(VisibleAnywhere,  meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<AEndless_RunnerCharacter> Player1;
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
@@ -52,6 +59,8 @@ public:
 		class UInputAction* MoveAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* MoveAction2;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputAction* PauseAction;
 
 
 	

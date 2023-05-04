@@ -82,6 +82,7 @@ void AEndless_RunnerGameMode::SpawnPlayers()
 		AEndless_RunnerCharacter* Character = WorldRef->SpawnActor<AEndless_RunnerCharacter>(CharacterImplementation, SpawnPoint + FVector(0.f, 0.f, 200.f), SpawnRotation, spawnParam);
 		Character->SetPlayerId(i);
 		Character->BindToTrack(TrackManager);
+		Character->OnKilled.AddDynamic(this, &AEndless_RunnerGameMode::FinishGame);
 		DPController->RegisterPlayer(Character, i);
 	}
 
@@ -91,5 +92,10 @@ void AEndless_RunnerGameMode::HandleStartingNewPlayer_Implementation(APlayerCont
 	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 
 
+}
+
+void AEndless_RunnerGameMode::FinishGame(int32 LosingPlayerId) {
+
+	UGameplayStatics::SetGamePaused(GetWorld(),true);
 }
 
