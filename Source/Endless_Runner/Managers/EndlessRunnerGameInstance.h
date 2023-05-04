@@ -7,6 +7,8 @@
 #include "TrackManager.h"
 
 #include "../Endless_RunnerCharacter.h"
+#include "Misc/Timespan.h"
+
 #include "EndlessRunnerGameInstance.generated.h"
 
 /**
@@ -28,17 +30,26 @@ private:
 		TSubclassOf<AEndless_RunnerCharacter> CharacterImplementation;
 
 	TArray<TObjectPtr<ATrackManager>> PlayerTracks;
-	
+	UPROPERTY(EditDefaultsOnly)
+	FString ConfigurableSaveFilePathName;	
+	FString SaveFilePathName;
+	UPROPERTY(VisibleAnywhere)
+
+	FTimespan CurrentHighScoreTime;
 	virtual void Init() override;
+	void AccessSaveFile();
+
 public:
 	UPROPERTY()
 	int NumPlayers;
+	void CheckHighScore(const FTimespan SubmittedScore);
 
 public:
 	void RegisterTracks(TObjectPtr<ATrackManager> TrackManager);
+	FTimespan GetCurrentHighScoreTime();
 
-	void SaveHighScoreToFile(FString FilePath, bool& bAcccessSuccess, FString& OutMessage);
-	FString LoadHighScoreFromFile(FString FilePath, FString Data, bool& bAcccessSuccess, FString& OutMessage);
+	void SaveHighScoreToFile(FString FilePath, FString Data, bool& bAcccessSuccess, FString& OutMessage);
+	FString LoadHighScoreFromFile(FString FilePath, bool& bAcccessSuccess, FString& OutMessage);
 
 	TWeakObjectPtr<ATrackManager> GetTrack(int index);
 

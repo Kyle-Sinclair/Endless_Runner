@@ -7,7 +7,7 @@
 #include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/InputComponent.h"
-
+#include "Misc/Timespan.h"
 
 ADualPlayerController::ADualPlayerController() {
 	InputComponent = CreateDefaultSubobject<UInputComponent>("Input Component");
@@ -31,11 +31,8 @@ void ADualPlayerController::BeginPlay()
 		}
 		SetupPlayerInputComponent();
 		HUD = CreateWidget<UHUDWidget>(this, HUDImplementation);
-		HUD->UpdateHighScore();
 		HUD->AddToPlayerScreen(9999);
-		//Player1LifeTotal = CreateWidget<ULifeTotalWidget>(this, LifeHUDImplementation);
-		//Player1LifeTotal->AddToPlayerScreen(9999);
-		//UGameplayStatics::SetGamePaused(GetWorld(), true);
+
 }
 
 void ADualPlayerController::RegisterPlayer(TObjectPtr<AEndless_RunnerCharacter> NewCharacter, int index) {
@@ -55,9 +52,19 @@ void ADualPlayerController::RegisterPlayer(TObjectPtr<AEndless_RunnerCharacter> 
 
 	}
 }
+
+void ADualPlayerController::PlayerTick(float DeltaSeconds)  {
+	Super::PlayerTick(DeltaSeconds);
+	float realtimeSeconds = UGameplayStatics::GetTimeSeconds(GetWorld());
+	HUD->UpdateCurrentScore(FTimespan::FromSeconds(realtimeSeconds));
+}
 	
 void ADualPlayerController::UpdateHealthUI(int32 NewHealth, int32 PlayerId) {
 	HUD->UpdateLifeTotal(NewHealth, PlayerId);
+	
+}
+void ADualPlayerController::UpdateTimeToBeat(FTimespan CurrentBestTime) {
+	HUD->UpdateTimeToBeat(CurrentBestTime);
 	
 }
 
@@ -71,6 +78,7 @@ void ADualPlayerController::SetupPlayerInputComponent()
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ADualPlayerController::MovePlayer1);
 	EnhancedInputComponent->BindAction(JumpAction2, ETriggerEvent::Completed, this, &ADualPlayerController::JumpPlayer2);
 	EnhancedInputComponent->BindAction(MoveAction2, ETriggerEvent::Triggered, this, &ADualPlayerController::MovePlayer2);
+	EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Triggered, this, &ADualPlayerController::PauseGame);
 
 }
 
@@ -97,5 +105,5 @@ void ADualPlayerController::MovePlayer2(const FInputActionValue& Value) {
 void ADualPlayerController::PauseGame() {
 
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Yellow, TEXT("Pause Input recieved"));
-	
+	GameMode->PauseGame();
 }

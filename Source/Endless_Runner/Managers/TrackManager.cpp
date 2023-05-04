@@ -42,6 +42,7 @@ void ATrackManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	ShiftTrack(DeltaTime);
+	UpdateDifficulty(DeltaTime);
 	if (TrackDelta > 900.f) {
 		TrackDelta -= 900.f;
 		SwapHeadWithTail();
@@ -60,7 +61,9 @@ void ATrackManager::ShiftTrack(float const DeltaTime) {
 	}
 	TrackDelta += -posDelta;
 }
-
+void ATrackManager::UpdateDifficulty(float const DeltaTime) {
+	TrackDifficulty += DeltaTime * 0.1;
+}
 
 
 void ATrackManager::InitializeTrack()

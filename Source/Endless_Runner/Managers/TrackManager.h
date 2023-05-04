@@ -75,6 +75,8 @@ public:
 	UFUNCTION()
 	void ShiftTrack(float const DeltaTime);
 	UFUNCTION()
+	void UpdateDifficulty(float const DeltaTime);
+	UFUNCTION()
 	void SpawnObstaclesOnTrack();
 	TArray<FVector> LaneOffsets;
 	

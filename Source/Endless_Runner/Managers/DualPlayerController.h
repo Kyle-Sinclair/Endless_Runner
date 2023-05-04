@@ -7,6 +7,8 @@
 #include "../Endless_RunnerCharacter.h"
 #include "../UI/LifeTotalWidget.h"
 #include "../UI/HUDWidget.h"
+#include "Misc/Timespan.h"
+
 #include "DualPlayerController.generated.h"
 
 /**
@@ -31,10 +33,13 @@ public:
 	UFUNCTION()
 	void PauseGame();
 	UFUNCTION()
-	void UpdateHealthUI(int32 NewHealth, int32 PlayerId);
+	void UpdateHealthUI(int32 NewHealth, int32 PlayerId);	
+	UFUNCTION()
+	void UpdateTimeToBeat(FTimespan CurrentBestTime);
 	
 	void RegisterPlayer(TObjectPtr<AEndless_RunnerCharacter> Character, int index);
 	virtual void BeginPlay() override;
+	virtual void PlayerTick(float DeltaSeconds) override;
 	void SetupPlayerInputComponent();
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputMappingContext* DefaultMappingContext;	

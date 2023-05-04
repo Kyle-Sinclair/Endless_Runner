@@ -17,13 +17,16 @@ class ENDLESS_RUNNER_API UHUDWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	void UpdateLifeTotal(int32 newHealth, int32 PlayerId);
-	void UpdateHighScore();
+	void UpdateCurrentScore(FTimespan TimeSpan);
+	void UpdateTimeToBeat(FTimespan TimeSpan);
 protected:
 	virtual void NativeConstruct() override;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UTextBlock* Player1LifeLabel;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UTextBlock* Player2LifeLabel;	
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UTextBlock* CurrentScoreLabel;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UTextBlock* HighScoreLabel;
 };

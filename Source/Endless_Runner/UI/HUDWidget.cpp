@@ -22,8 +22,12 @@ void UHUDWidget::NativeConstruct()
 	}
 	if (HighScoreLabel)
 	{
-		HighScoreLabel->SetText(FText::FromString(TEXT("High Score: ")));
+		HighScoreLabel->SetText(FText::FromString(TEXT("Time To Beat: ")));
 
+	}
+	if (CurrentScoreLabel)
+	{
+		CurrentScoreLabel->SetText(FText::FromString(TEXT("Current Time: ")));
 	}
 }
 
@@ -45,8 +49,15 @@ void UHUDWidget::UpdateLifeTotal(int32 NewHealth, int32 PlayerId) {
 	
 
 }
-void UHUDWidget::UpdateHighScore() {
-	HighScoreLabel->SetText(FText::FromString(TEXT("High Score: ")));
+void UHUDWidget::UpdateCurrentScore(FTimespan TimeSpan) {
+	FString UpdatedText = FString::Printf(TEXT("Current Time: "));
+	UpdatedText.Append(TimeSpan.ToString());
+	CurrentScoreLabel->SetText(FText::FromString(UpdatedText));
+}
 
+void UHUDWidget::UpdateTimeToBeat(FTimespan TimeSpan) {
+	FString UpdatedText = FString::Printf(TEXT("Time To Beat: "));
+	UpdatedText.Append(TimeSpan.ToString());
+	HighScoreLabel->SetText(FText::FromString(UpdatedText));
 }
 

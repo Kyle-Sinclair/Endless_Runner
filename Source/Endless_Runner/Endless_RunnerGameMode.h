@@ -4,12 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "Managers/EndlessRunnerGameInstance.h"
 
 #include "Endless_RunnerCharacter.h"
 #include "Managers/TrackManager.h"
 #include "Managers/DualPlayerController.h"
 
 #include "Endless_RunnerGameMode.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPopulateObstacles, ATrackPiece, Health);
 
 UCLASS(minimalapi)
 class AEndless_RunnerGameMode : public AGameModeBase
@@ -37,18 +40,24 @@ public:
 		TSubclassOf<AEndless_RunnerCharacter> CharacterImplementation;
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<ADualPlayerController> DualPlayerControllerImplmentation;
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<UObstacleFactory> ObstacleFactoryImplementation;
 	TArray<FVector> ObstacleRelativeOffsets;
 	UFUNCTION()
 	void FinishGame(int32 LosingPlayerId);
+
+	void PauseGame();
 protected:
 	void LinkController();
 
 	void SpawnTracks();
 	void SpawnPlayers();
 	TObjectPtr<ADualPlayerController> DPController;
-
+	TObjectPtr<UObstacleFactory> ObstacleFactory;
 	TArray<FVector> LaneOffSets;
 	TArray<FVector> TrackStartingPositions;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UEndlessRunnerGameInstance> GameInstance;
 
 	
 	

@@ -38,7 +38,8 @@ AEndless_RunnerGameMode::AEndless_RunnerGameMode()
 void AEndless_RunnerGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
-	
+	GameInstance = Cast<UEndlessRunnerGameInstance>(GetWorld()->GetGameInstance());
+
 	
 }
 
@@ -52,6 +53,8 @@ void AEndless_RunnerGameMode::StartPlay()
 }
 void AEndless_RunnerGameMode::LinkController() {
 	DPController = CastChecked<ADualPlayerController>(GetWorld()->GetFirstPlayerController());
+	DPController->UpdateTimeToBeat(GameInstance->GetCurrentHighScoreTime());
+	//DPController->UpdateTimeToBeat(FTimespan::Zero());
 }
 
 void AEndless_RunnerGameMode::SpawnTracks()
@@ -97,5 +100,24 @@ void AEndless_RunnerGameMode::HandleStartingNewPlayer_Implementation(APlayerCont
 void AEndless_RunnerGameMode::FinishGame(int32 LosingPlayerId) {
 
 	UGameplayStatics::SetGamePaused(GetWorld(),true);
+	float realtimeSeconds = UGameplayStatics::GetTimeSeconds(GetWorld());
+	FTimespan TimeToSubmit = FTimespan::FromSeconds(realtimeSeconds);
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TimeToSubmit.ToString());
+
+	GameInstance->CheckHighScore(TimeToSubmit);
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Saving new high score"));
+
+	DPController->UpdateTimeToBeat(GameInstance->GetCurrentHighScoreTime());
+
+}
+void AEndless_RunnerGameMode::PauseGame() {
+	const TObjectPtr<UWorld> WorldRef = GetWorld();
+	if(UGameplayStatics::IsGamePaused(WorldRef)) {
+		UGameplayStatics::SetGamePaused(WorldRef, false);
+	}
+	else {
+		UGameplayStatics::SetGamePaused(WorldRef, true);
+
+	}
 }
 
