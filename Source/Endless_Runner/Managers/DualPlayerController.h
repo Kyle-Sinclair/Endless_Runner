@@ -22,31 +22,17 @@ class ENDLESS_RUNNER_API ADualPlayerController : public APlayerController
 
 public:
 	ADualPlayerController();
-	UFUNCTION()
-	void MovePlayer1(const FInputActionValue& Value);
-	UFUNCTION()
-	void MovePlayer2(const FInputActionValue& Value);
-	UFUNCTION()
-	void JumpPlayer1();
-	UFUNCTION()
-	void JumpPlayer2();
-	UFUNCTION()
-	void PauseGame();
+	//// Delegate subscriber functions for UI info /////
 	UFUNCTION()
 	void UpdateHealthUI(int32 NewHealth, int32 PlayerId);	
 	UFUNCTION()
 	void UpdateTimeToBeat(FTimespan CurrentBestTime);
 	
+	///// Configurations Methods /////
 	void RegisterPlayer(TObjectPtr<AEndless_RunnerCharacter> Character, int index);
-	virtual void BeginPlay() override;
-	virtual void PlayerTick(float DeltaSeconds) override;
 	void SetupPlayerInputComponent();
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		class UInputMappingContext* DefaultMappingContext;	
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite , Category = UI, meta = (AllowPrivateAccess = "true"))
-		TSubclassOf<UHUDWidget> HUDImplementation;
 	
+	///// In Game References /////
 
 	UPROPERTY()
 	TObjectPtr<UHUDWidget> HUD;
@@ -56,6 +42,14 @@ public:
 		TObjectPtr<AEndless_RunnerCharacter> Player1;
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<AEndless_RunnerCharacter> Player2;
+
+
+protected:
+
+	///// BP Configurable Settings /////
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputMappingContext* DefaultMappingContext;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* JumpAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -66,7 +60,24 @@ public:
 		class UInputAction* MoveAction2;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* PauseAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = UI, meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<UHUDWidget> HUDImplementation;
 
+	///// Relay Input Functions /////
+	UFUNCTION()
+		void MovePlayer1(const FInputActionValue& Value);
+	UFUNCTION()
+		void MovePlayer2(const FInputActionValue& Value);
+	UFUNCTION()
+		void JumpPlayer1();
+	UFUNCTION()
+		void JumpPlayer2();
+	UFUNCTION()
+		void PauseGame();
 
+	///// Overridden functions /////
+	virtual void BeginPlay() override;
+	//// Player tick must be overridden in order for a controller to process its input queue /////
+	virtual void PlayerTick(float DeltaSeconds) override;
 	
 };

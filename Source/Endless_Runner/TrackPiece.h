@@ -6,7 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/ArrowComponent.h"
-#include "Obstacle.h"
 #include "TrackPiece.generated.h"
 
 UCLASS()
@@ -56,8 +55,7 @@ public:
 	void DeactivateTrackPiece(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	void ActivateTrackPiece();
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Track Blueprints")
-	TArray<TSubclassOf<AObstacle>> PossibleObstacles;
+	
 
 
 };

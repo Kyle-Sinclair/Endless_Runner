@@ -3,10 +3,6 @@
 
 #include "TrackPiece.h"
 #include "Components/StaticMeshComponent.h"
-#include "Obstacle.h"
-#include "DrawDebugHelpers.h"
-
-#include "Components/BoxComponent.h"
 // Sets default values
 ATrackPiece::ATrackPiece()
 {
@@ -26,7 +22,6 @@ ATrackPiece::ATrackPiece(ATrackPiece* BeforeTrackPiece, ATrackPiece* AfterTrackP
 	TrackSeamPoint->AttachToComponent(SuperMesh, FAttachmentTransformRules::KeepRelativeTransform);
 	PreviousTrackPiece = BeforeTrackPiece;
 	NextTrackPiece = AfterTrackPiece;
-
 }
 
 void ATrackPiece::BeginPlay()

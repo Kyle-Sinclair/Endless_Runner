@@ -11,30 +11,51 @@
 
 ADualPlayerController::ADualPlayerController() {
 	InputComponent = CreateDefaultSubobject<UInputComponent>("Input Component");
-	//Player1LifeTotal = CreateDefaultSubobject<ULifeTotalWidget>("Player 1 Life");
 	HUD = CreateDefaultSubobject<UHUDWidget>("HUD");
 }
+///// Overridden functions //////
 
 void ADualPlayerController::BeginPlay()
 {
-	// Call the base class  
-	//Add Input Mapping Context
-		GameMode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
-			
 
-		int32 id = GetLocalPlayer()->GetControllerId();
-		UE_LOG(LogTemp, Warning, TEXT("PLayer Controller pointer was valid for controller id %i"), id);
-
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	GameMode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
+	int32 id = GetLocalPlayer()->GetControllerId();
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
-		SetupPlayerInputComponent();
-		HUD = CreateWidget<UHUDWidget>(this, HUDImplementation);
-		HUD->AddToPlayerScreen(9999);
 
+	SetupPlayerInputComponent();
+	HUD = CreateWidget<UHUDWidget>(this, HUDImplementation);
+	HUD->AddToPlayerScreen(9999);
 }
 
+
+/// <summary>
+/// This must be overridden in order for the controller to process input
+/// commands
+/// </summary>
+/// <param name="DeltaSeconds"></param>
+void ADualPlayerController::PlayerTick(float DeltaSeconds) {
+	Super::PlayerTick(DeltaSeconds);
+	float realtimeSeconds = UGameplayStatics::GetTimeSeconds(GetWorld());
+	HUD->UpdateCurrentScore(FTimespan::FromSeconds(realtimeSeconds));
+}
+
+void ADualPlayerController::SetupPlayerInputComponent()
+{
+	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(GetWorld()->GetFirstPlayerController()->FindComponentByClass<UEnhancedInputComponent>());
+	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ADualPlayerController::JumpPlayer1);
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ADualPlayerController::MovePlayer1);
+	EnhancedInputComponent->BindAction(JumpAction2, ETriggerEvent::Completed, this, &ADualPlayerController::JumpPlayer2);
+	EnhancedInputComponent->BindAction(MoveAction2, ETriggerEvent::Triggered, this, &ADualPlayerController::MovePlayer2);
+	EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Triggered, this, &ADualPlayerController::PauseGame);
+}
+/// <summary>
+/// Binds game mode created characters to this controller
+/// </summary>
+/// <param name="NewCharacter"></param>
+/// <param name="index"></param>
 void ADualPlayerController::RegisterPlayer(TObjectPtr<AEndless_RunnerCharacter> NewCharacter, int index) {
 	if (index == 0) {
 		Player1 = NewCharacter;
@@ -47,18 +68,12 @@ void ADualPlayerController::RegisterPlayer(TObjectPtr<AEndless_RunnerCharacter> 
 		Player2 = NewCharacter;
 		Player2->OnHealthUpdated.AddDynamic(this, &ADualPlayerController::UpdateHealthUI);
 		Player2->Health = GameMode->StartingHealth;
-
 		UpdateHealthUI(Player2->Health, 1);
-
 	}
 }
 
-void ADualPlayerController::PlayerTick(float DeltaSeconds)  {
-	Super::PlayerTick(DeltaSeconds);
-	float realtimeSeconds = UGameplayStatics::GetTimeSeconds(GetWorld());
-	HUD->UpdateCurrentScore(FTimespan::FromSeconds(realtimeSeconds));
-}
 	
+///// UI Updating Functions //////
 void ADualPlayerController::UpdateHealthUI(int32 NewHealth, int32 PlayerId) {
 	HUD->UpdateLifeTotal(NewHealth, PlayerId);
 	
@@ -68,19 +83,7 @@ void ADualPlayerController::UpdateTimeToBeat(FTimespan CurrentBestTime) {
 	
 }
 
-void ADualPlayerController::SetupPlayerInputComponent()
-{
-	
-	
-	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(GetWorld()->GetFirstPlayerController()->FindComponentByClass<UEnhancedInputComponent>());
-
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ADualPlayerController::JumpPlayer1);
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ADualPlayerController::MovePlayer1);
-	EnhancedInputComponent->BindAction(JumpAction2, ETriggerEvent::Completed, this, &ADualPlayerController::JumpPlayer2);
-	EnhancedInputComponent->BindAction(MoveAction2, ETriggerEvent::Triggered, this, &ADualPlayerController::MovePlayer2);
-	EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Triggered, this, &ADualPlayerController::PauseGame);
-
-}
+///// Input Relay functions /////
 
 void ADualPlayerController::JumpPlayer1() {
 

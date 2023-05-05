@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/BoxComponent.h"
 #include "../TrackPiece.h"
+#include "../Obstacle.h"
 #include "TrackManager.generated.h"
 
 
