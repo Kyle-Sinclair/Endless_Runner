@@ -18,13 +18,19 @@ class AEndless_RunnerGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
-public:
+private:
+	/// <summary>
+	/// AGameMode base functions
+	/// </summary>
 	AEndless_RunnerGameMode();
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 	virtual void StartPlay() override;
 
 public:
+	/// <summary>
+	/// Configurable settings for game start up
+	/// </summary>
 	UPROPERTY(EditDefaultsOnly)
 		int NumPlayers; 
 	UPROPERTY(EditDefaultsOnly)
@@ -39,24 +45,34 @@ public:
 		TSubclassOf<AEndless_RunnerCharacter> CharacterImplementation;
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<ADualPlayerController> DualPlayerControllerImplmentation;
-	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<UObstacleFactory> ObstacleFactoryImplementation;
-	TArray<FVector> ObstacleRelativeOffsets;
-	UFUNCTION()
+
+	/// <summary>
+	/// Public functions for player to control game state
+	/// </summary>
+
 	void FinishGame(int32 LosingPlayerId);
-
 	void PauseGame();
-protected:
-	void LinkController();
 
+protected:
+	
+	/// <summary>
+	/// Start Up Functions
+	/// </summary>
+	void LinkController();
 	void SpawnTracks();
 	void SpawnPlayers();
+
+	/// <summary>
+	/// In Game References
+	/// </summary>
 	TObjectPtr<ADualPlayerController> DPController;
-	TObjectPtr<UObstacleFactory> ObstacleFactory;
+	TObjectPtr<UEndlessRunnerGameInstance> GameInstance;
+
+	/// <summary>
+	/// In Game config settings
+	/// </summary>
 	TArray<FVector> LaneOffSets;
 	TArray<FVector> TrackStartingPositions;
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UEndlessRunnerGameInstance> GameInstance;
 
 	
 	

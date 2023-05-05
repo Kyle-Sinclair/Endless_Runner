@@ -17,16 +17,7 @@ AEndless_RunnerGameMode::AEndless_RunnerGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
-	ObstacleRelativeOffsets.Add(FVector(250.f, -200.f, -100.f));
-	ObstacleRelativeOffsets.Add(FVector(550.f, -200.f, -100.f));
-	ObstacleRelativeOffsets.Add(FVector(850.f, -200.f, -100.f));
-	ObstacleRelativeOffsets.Add(FVector(250.f, -400.f, -100.f));
-	ObstacleRelativeOffsets.Add(FVector(550.f, -400.f, -100.f));
-	ObstacleRelativeOffsets.Add(FVector(850.f, -400.f, -100.f)); 
-	ObstacleRelativeOffsets.Add(FVector(250.f, -600.f, -100.f));
-	ObstacleRelativeOffsets.Add(FVector(550.f, -600.f, -100.f));
-	ObstacleRelativeOffsets.Add(FVector(850.f, -600.f, -100.f));
-
+	//Store config settings here in case other classess need them
 	LaneOffSets.Add(FVector(1550.f, 150.f, 200.f));
 	LaneOffSets.Add(FVector(1550.f, 450.f, 200.f));
 	LaneOffSets.Add(FVector(1550.f, 750.f, 200.f));
@@ -39,8 +30,6 @@ void AEndless_RunnerGameMode::InitGame(const FString& MapName, const FString& Op
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 	GameInstance = Cast<UEndlessRunnerGameInstance>(GetWorld()->GetGameInstance());
-
-	
 }
 
 void AEndless_RunnerGameMode::StartPlay()
@@ -49,13 +38,15 @@ void AEndless_RunnerGameMode::StartPlay()
 	LinkController();
 	SpawnTracks();
 	SpawnPlayers();
-	
 }
+
 void AEndless_RunnerGameMode::LinkController() {
 	DPController = CastChecked<ADualPlayerController>(GetWorld()->GetFirstPlayerController());
 	DPController->UpdateTimeToBeat(GameInstance->GetCurrentHighScoreTime());
 }
-
+/// <summary>
+/// Spawns tracks, registers them with game instance and then gets game instance to link them to each other for obstacle teleportation
+/// </summary>
 void AEndless_RunnerGameMode::SpawnTracks()
 {
 	UWorld* WorldRef = GetWorld();
@@ -72,7 +63,9 @@ void AEndless_RunnerGameMode::SpawnTracks()
 	}
 	Instance->LinkTracks();
 }
-
+/// <summary>
+/// creates a player for each track manager and links them to the tracks as well as the Dual Player Controller
+/// </summary>
 void AEndless_RunnerGameMode::SpawnPlayers()
 {
 	UWorld* WorldRef = GetWorld();
@@ -91,26 +84,18 @@ void AEndless_RunnerGameMode::SpawnPlayers()
 	}
 
 }
-void AEndless_RunnerGameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
-{
-	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 
-
-}
 
 void AEndless_RunnerGameMode::FinishGame(int32 LosingPlayerId) {
 
 	UGameplayStatics::SetGamePaused(GetWorld(),true);
 	float realtimeSeconds = UGameplayStatics::GetTimeSeconds(GetWorld());
 	FTimespan TimeToSubmit = FTimespan::FromSeconds(realtimeSeconds);
-	//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TimeToSubmit.ToString());
-
 	GameInstance->CheckHighScore(TimeToSubmit);
-	//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Saving new high score"));
-
 	DPController->UpdateTimeToBeat(GameInstance->GetCurrentHighScoreTime());
 
 }
+
 void AEndless_RunnerGameMode::PauseGame() {
 	const TObjectPtr<UWorld> WorldRef = GetWorld();
 	if(UGameplayStatics::IsGamePaused(WorldRef)) {
@@ -118,7 +103,16 @@ void AEndless_RunnerGameMode::PauseGame() {
 	}
 	else {
 		UGameplayStatics::SetGamePaused(WorldRef, true);
-
 	}
 }
 
+/// <summary>
+/// Overrides of base function for creating players
+/// </summary>
+/// <param name="NewPlayer"></param>
+void AEndless_RunnerGameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
+{
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+
+
+}

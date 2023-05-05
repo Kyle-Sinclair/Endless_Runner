@@ -5,8 +5,6 @@
 #include "../Endless_RunnerGameMode.h"
 #include "HAL/PlatformFilemanager.h"
 #include "Misc/Paths.h"
-#include "../Obstacle.h"
-
 #include "Misc/Timespan.h"
 
 void UEndlessRunnerGameInstance::Init() {
@@ -24,7 +22,6 @@ TObjectPtr<ATrackManager> UEndlessRunnerGameInstance::GetTrack(int index) {
 void UEndlessRunnerGameInstance::RegisterTracks(TObjectPtr<ATrackManager> TrackManager)
 {
 	 PlayerTracks.Add(TrackManager);
-	 //TrackManager->OnTeleportObstacle.AddDynamic(this, &UEndlessRunnerGameInstance::DepositObstacle);
 	 if (PlayerTracks.Contains(TrackManager))
 	 {
 		 GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Track Registered"));

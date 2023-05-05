@@ -5,11 +5,8 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "TrackManager.h"
-#include "../Obstacle.h"
-
 #include "../Endless_RunnerCharacter.h"
 #include "Misc/Timespan.h"
-
 #include "EndlessRunnerGameInstance.generated.h"
 
 /**
@@ -20,6 +17,9 @@ class ENDLESS_RUNNER_API UEndlessRunnerGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 private:
+	///// Initialisation //////
+	virtual void Init() override;
+
 	///// Saving and Loading Functions ///////
 	void SaveHighScoreToFile(FString FilePath, FString Data, bool& bAcccessSuccess, FString& OutMessage);
 	FString LoadHighScoreFromFile(FString FilePath, bool& bAcccessSuccess, FString& OutMessage);
@@ -44,22 +44,24 @@ private:
 		TSubclassOf<AEndless_RunnerCharacter> CharacterImplementation;
 
 
-	///// In Game References ///////
 
 public:
+	///// In Game References ///////
+
 	UPROPERTY()
 	int NumPlayers;
+	TArray<TObjectPtr<ATrackManager>> PlayerTracks;
+	
+	UPROPERTY(VisibleAnywhere)
+	FTimespan CurrentHighScoreTime;
+
+
+	///// In Game Functions ///////
+
 	void CheckHighScore(const FTimespan SubmittedScore);
 	void RegisterTracks(TObjectPtr<ATrackManager> TrackManager);
 	void LinkTracks();
 	FTimespan GetCurrentHighScoreTime();
-
-	TArray<TObjectPtr<ATrackManager>> PlayerTracks;
-	
-	UPROPERTY(VisibleAnywhere)
-
-	FTimespan CurrentHighScoreTime;
-	virtual void Init() override;
 
 	TObjectPtr<ATrackManager> GetTrack(int index);
 

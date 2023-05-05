@@ -171,18 +171,14 @@ void ATrackManager::SwapHeadWithTail()
 void ATrackManager::SpawnObstaclesOnTrack()
 {
 	float ChanceToSpawn;
-	
-	//AEndless_RunnerGameMode* mymode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
-	//mymode->ObstacleRelativeOffsets;
-
 	TArray<FVector> ObstacleRelativeOffsets = HeadTrackPiece->ObstacleRelativeOffsets;
+
 	for (FVector vec : ObstacleRelativeOffsets)
 	{
 		ChanceToSpawn = FMath::RandRange(0, 100);
 		if (ChanceToSpawn < TrackDifficulty) {
 			AObstacle* Obstacle = GetWorld()->SpawnActor<AObstacle>(PossibleObstacles[0], HeadTrackPiece->TrackSeamPoint->GetComponentLocation() - vec, GetActorRotation());
 			CurrentObstacles.Emplace(Obstacle);
-			//HeadTrackPiece->AttachObstacleToTrackPiece(vec, Obstacle);
 		}
 	}
 }

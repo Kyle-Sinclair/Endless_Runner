@@ -6,7 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "Components/BoxComponent.h"
 #include "../TrackPiece.h"
-#include "../Factories/ObstacleFactory.h"
 #include "TrackManager.generated.h"
 
 UDELEGATE()
@@ -40,11 +39,8 @@ public:
 	
 	UPROPERTY()
 	FTeleportObstacle OnTeleportObstacle;
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<UObstacleFactory> ObstacleFactory;
 
-	UPROPERTY()
-	TObjectPtr<UObstacleFactory> ObstacleFactoryRef;
+
 	UPROPERTY(BlueprintReadOnly)
 	TArray<ATrackPiece*> CurrentTrackPieces;
 	UPROPERTY(BlueprintReadOnly)
