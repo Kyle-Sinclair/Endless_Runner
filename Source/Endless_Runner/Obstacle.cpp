@@ -24,7 +24,7 @@ void AObstacle::BeginPlay()
 // Called every frame
 void AObstacle::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+	//Super::Tick(DeltaTime);
 
 }
 void AObstacle::ConfigureMesh(UStaticMesh newMesh) {

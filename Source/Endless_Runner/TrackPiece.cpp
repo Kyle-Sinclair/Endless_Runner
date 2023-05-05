@@ -3,10 +3,6 @@
 
 #include "TrackPiece.h"
 #include "Components/StaticMeshComponent.h"
-#include "Obstacle.h"
-#include "DrawDebugHelpers.h"
-
-#include "Components/BoxComponent.h"
 // Sets default values
 ATrackPiece::ATrackPiece()
 {
@@ -26,51 +22,32 @@ ATrackPiece::ATrackPiece(ATrackPiece* BeforeTrackPiece, ATrackPiece* AfterTrackP
 	TrackSeamPoint->AttachToComponent(SuperMesh, FAttachmentTransformRules::KeepRelativeTransform);
 	PreviousTrackPiece = BeforeTrackPiece;
 	NextTrackPiece = AfterTrackPiece;
-
 }
 
 void ATrackPiece::BeginPlay()
 {
 	Super::BeginPlay();
+	InitializeObstacleOffsets();
 	TrackSeamPoint->SetWorldLocation(GetActorLocation() + FVector(900.f, 0.f, 0.f));
-
-	if (GEngine) {
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Track piece created"));
-	}
-
-	
-
-}
-
-
-
-void ATrackPiece::Tick(float DeltaTime)
-{
-	
 }
 
 void ATrackPiece::DeactivateTrackPiece(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	Destroy();
-
 }
 
 void ATrackPiece::ActivateTrackPiece() {
 
 }
 
-void ATrackPiece::AttachObstacleToTrackPiece(const FVector SpawnPosition, AObstacle* ObstacleToWeld)
-{
-
-//	AEndless_RunnerGameMode* mymode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
-//	FVector BoxSize = FVector(50.f, 50.f, 50.f);
-//
-//	TArray<FVector> ObstacleRelativeOffsets = mymode->ObstacleRelativeOffsets;
-//	for (FVector vec : ObstacleRelativeOffsets)
-//	{
-		Obstacles.Add(ObstacleToWeld);
-		//ObstacleToWeld->SetActorLocation(TrackSeamPoint - SpawnPosition);
-		ObstacleToWeld->AttachToActor(this,FAttachmentTransformRules::KeepWorldTransform);
-//		//DrawDebugSolidBox(GetWorld(), TrackSeamPoint->GetComponentLocation() - vec, BoxSize, FColor::Blue, false);
-//	}
+void ATrackPiece::InitializeObstacleOffsets() {
+	ObstacleRelativeOffsets.Add(FVector(250.f, -200.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(550.f, -200.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(850.f, -200.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(250.f, -400.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(550.f, -400.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(850.f, -400.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(250.f, -600.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(550.f, -600.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(850.f, -600.f, -100.f));
 }

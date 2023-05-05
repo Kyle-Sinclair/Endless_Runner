@@ -9,7 +9,11 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
+#include "Managers/TrackManager.h"
+
 #include "EnhancedInputSubsystems.h"
+
+
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -37,19 +41,7 @@ AEndless_RunnerCharacter::AEndless_RunnerCharacter()
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 
-	// Create a camera boom (pulls in towards the player if there is a collision)
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
-	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-
-	// Create a follow camera
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-	//OnActorHit.AddDynamic(this, &AEndless_RunnerCharacter::OnBeginOverlap);
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+	
 	
 }
 
@@ -58,26 +50,29 @@ void AEndless_RunnerCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 	LaneNumber = 1;
-	//Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
-	AEndless_RunnerGameMode* mymode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
 
-	FVector newLocation = mymode->LaneOffSets[LaneNumber++ % 3];
-	SetActorLocation(newLocation);
 	UCapsuleComponent* Capsule = GetCapsuleComponent();
 	Capsule->OnComponentBeginOverlap.AddDynamic(this, &AEndless_RunnerCharacter::OnCollideWithObstacle);
-	//CapsuleComponent->OnComponentBeginOverlap.AddDynamic(this,&AEndless_RunnerCharacter::OnCollideWithObstacle);
 }
 
+/// <summary>
+/// Takes damage on this character, destroys the obstacle it collided with and broadcasts relevant delegates
+/// </summary>
+/// <param name=""></param>
+/// <param name="OtherActor"></param>
+/// <param name="OtherComp"></param>
+/// <param name="OtherIndex"></param>
+/// <param name="bFromSweep"></param>
+/// <param name="SweepResult"></param>
 void AEndless_RunnerCharacter::OnCollideWithObstacle(UPrimitiveComponent* /*ignored*/, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Blue, TEXT("Actor Collision"));
+	Health--;
+	if (Health <= 0) {
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("Character is Dead"));
+		OnKilled.Broadcast(PlayerId);
+	}
+	OnHealthUpdated.Broadcast(Health, PlayerId);
+	OnTakenDamage.Broadcast();
 	OtherActor->Destroy();
 }
 
@@ -86,59 +81,62 @@ void AEndless_RunnerCharacter::OnCollideWithObstacle(UPrimitiveComponent* /*igno
 
 void AEndless_RunnerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
-		//Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
-
-		//Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEndless_RunnerCharacter::Move);
-
-		//Looking
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEndless_RunnerCharacter::Look);
-
-	}
-
+}
+void AEndless_RunnerCharacter::Tick(float DeltaSeconds) {
+	Super::Tick(DeltaSeconds);
 }
 
+/// <summary>
+/// Recieves input values from DualPLayerController
+/// and snaps character to lane based on that
+/// </summary>
+/// <param name="Value"></param>
 void AEndless_RunnerCharacter::Move(const FInputActionValue& Value)
 {
-	// input is a Vector2D
-	FVector2D MovementVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
-	{
-	
+	if (GetCharacterMovement()->IsMovingOnGround()) {
+		FVector2D MovementVector = Value.Get<FVector2D>();
 		LaneNumber += MovementVector.X;
 		if (LaneNumber < 0) {
 			LaneNumber = 2;
 		}
 		LaneNumber = LaneNumber % 3;
 
-		AEndless_RunnerGameMode* mymode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
-		FVector newLocation = mymode->LaneOffSets[LaneNumber];
+		FVector newLocation = LaneOffSets[LaneNumber];
 		SetActorLocation(newLocation);
 	}
 }
 
-void AEndless_RunnerCharacter::Look(const FInputActionValue& Value)
-{
-	// input is a Vector2D
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
-	{
-		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
-	}
+void AEndless_RunnerCharacter::DoJump() {
+	Super::Jump();
 }
 
-void AEndless_RunnerCharacter::OnBeginOverlap()
-{
+/// <summary>
+/// Configuration method that allows track to provide information about lane
+/// sizes and positions to the character
+/// </summary>
+/// <param name="OwningTrack"></param>
+void AEndless_RunnerCharacter::BindToTrack(TObjectPtr<ATrackManager> OwningTrack) {
+	BoundTrack = OwningTrack;
 
+	FVector LaneAdjustment = FVector(0.f,LaneWidth,0.f);
+	FVector StartPosition = OwningTrack->GetActorLocation() + FVector(900.f,LaneWidth,200.f);
+	LaneOffSets.Add(StartPosition);
+	LaneOffSets.Add(StartPosition + LaneAdjustment);
+	LaneOffSets.Add(StartPosition + 2 * LaneAdjustment);
+	LaneNumber = 1;
+	SetActorLocation(LaneOffSets[LaneNumber]);
+	OnTakenDamage.AddDynamic(OwningTrack, &ATrackManager::ResetProbability);
+
+}
+
+/// <summary>
+/// Configured at set up
+/// Has same value as iot's bound track manager's entry in
+/// the game instance. 
+/// </summary>
+/// <param name="Id"></param>
+void AEndless_RunnerCharacter::SetPlayerId(int32 Id) {
+	PlayerId = Id;
 }
 
 

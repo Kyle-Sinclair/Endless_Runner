@@ -7,10 +7,12 @@
 
 UObstacleFactory::UObstacleFactory()
 {
-	//Super::__DefaultConstructor();
+	//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Factory Created"));
+
+
 }
 
 void UObstacleFactory::ExampleFunction() {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("Obstacle factory functional"));
+
 }
 

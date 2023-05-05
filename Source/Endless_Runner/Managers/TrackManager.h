@@ -6,21 +6,13 @@
 #include "GameFramework/Actor.h"
 #include "Components/BoxComponent.h"
 #include "../TrackPiece.h"
-#include "../Factories/ObstacleFactory.h"
+#include "../Obstacle.h"
 #include "TrackManager.generated.h"
-USTRUCT()
-		struct FObstacleCollection
-	{
-		GENERATED_BODY()
-	public:
-		UPROPERTY()
-		TArray<TSubclassOf<AObstacle>> ObstacleCollection;
 
-		FObstacleCollection() {
-			ObstacleCollection.Reserve(9);
-		}
-	};
+
 UCLASS()
+
+
 class ENDLESS_RUNNER_API ATrackManager : public AActor
 {
 	GENERATED_BODY()
@@ -33,51 +25,98 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	/// Obstacle Management /////
+	/// <summary>
+	/// Returns how much an obstacle should be offset
+	/// to transition to the other track
+	/// </summary>
+	/// <returns></returns>
+	FVector GetLocalOffset();
+	/// <summary>
+	/// Counter for draining obstaces from one track to the other
+	/// </summary>
+	int32 ObstaclesToPort;
 	
+public:	
+	
+	/// Configuration Settngs for BP /////
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Track Blueprints")
-	TArray<TSubclassOf<ATrackPiece> > PossibleTrackPieces;
+		TArray<TSubclassOf<ATrackPiece> > PossibleTrackPieces;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Obstacle Blueprints")
-	TArray<TSubclassOf<AObstacle>> PossibleObstacles;
+		TArray<TSubclassOf<AObstacle>> PossibleObstacles;
 	
-
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UObstacleFactory> ObstacleFactory;
-
-	UPROPERTY()
-	TObjectPtr<UObstacleFactory> ObstacleFactoryRef;
-	UPROPERTY()
-	TArray<ATrackPiece*> CurrentTrackPieces;
+		int TrackLength;
 	UPROPERTY(EditAnywhere)
-	float TrackLength;
-	UPROPERTY(EditAnywhere) 
-	float TrackSpeed;
-	
+		float TrackSpeed;
+	UPROPERTY(VisibleAnywhere)
+		int32 TrackId;
+	UPROPERTY(EditDefaultsOnly)
+		float TrackDifficulty;
+	UPROPERTY(EditAnywhere)
+		float PortProbability;
+
+	/// In Game References /////
+
+	UPROPERTY(BlueprintReadOnly)
+		TArray<ATrackPiece*> CurrentTrackPieces;
+	UPROPERTY(BlueprintReadOnly)
+		TArray<TObjectPtr<AObstacle>> CurrentObstacles;
 	UPROPERTY()
-	float TrackDelta; 
-	UPROPERTY( EditAnywhere)
-	float TrackDifficulty;
+		TArray<TObjectPtr<AObstacle>> RecievedObstacles;
 	UPROPERTY(VisibleAnywhere)
-	TWeakObjectPtr<ATrackPiece> HeadTrackPiece; 
+		TWeakObjectPtr<ATrackManager> LinkedTrack;
 	UPROPERTY(VisibleAnywhere)
-	TWeakObjectPtr<ATrackPiece> TailTrackPiece;
+		TWeakObjectPtr<ATrackPiece> HeadTrackPiece;
+	UPROPERTY(VisibleAnywhere)
+		TWeakObjectPtr<ATrackPiece> TailTrackPiece;
+	//Tracks if track has moved far enough to warrant swapping head and tail pieces
+	UPROPERTY()
+		float TrackDelta; 
 	
 	
+	
+	/// <summary>
+	/// Track Creation methods called in begin play
+	/// </summary>
 	UFUNCTION()
 	void InitializeTrack();
 	UFUNCTION()
 	void LinkTrackPieces(); 
+	/// <summary>
+	/// Track Coniguration methods 
+	/// </summary>
+
+	void ConfigureId(const int32 TrackId);
+	TArray<FVector> LaneOffsets;
+
+	/// <summary>
+	/// Track Management Methods
+	/// </summary>
 	UFUNCTION()
 	void SwapHeadWithTail();
 	UFUNCTION()
 	void ShiftTrack(float const DeltaTime);
 	UFUNCTION()
+	void ShiftObstacles(float const DeltaTime);	
+	UFUNCTION()
+	void ClearObstacles();
+	UFUNCTION()
+	void PortObstacles();	
+	UFUNCTION()
+	void RecieveObstacles();
+	UFUNCTION()
+	void UpdateDifficulty(float const DeltaTime);
+	UFUNCTION()
+	void ResetProbability();
+	UFUNCTION()
 	void SpawnObstaclesOnTrack();
+	void RecieveTeleportedObstacle(TObjectPtr<AObstacle> ActorToDeposit);
 
 	
-private:
-	void RemoveTrackObstacles(TWeakObjectPtr<ATrackPiece> TailTrackPiece);
+	
 };
