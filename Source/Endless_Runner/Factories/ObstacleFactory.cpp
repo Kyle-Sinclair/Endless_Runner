@@ -7,7 +7,7 @@
 
 UObstacleFactory::UObstacleFactory()
 {
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Factory Created"));
+	//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Factory Created"));
 
 
 }

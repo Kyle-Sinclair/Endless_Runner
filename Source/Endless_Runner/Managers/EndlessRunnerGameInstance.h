@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "TrackManager.h"
+#include "../Obstacle.h"
 
 #include "../Endless_RunnerCharacter.h"
 #include "Misc/Timespan.h"
@@ -43,14 +44,17 @@ public:
 	UPROPERTY()
 	int NumPlayers;
 	void CheckHighScore(const FTimespan SubmittedScore);
-
+	UFUNCTION()
+	void DepositObstacle(AActor* ObstacleToTeleport, int32 TrackId);
 public:
 	void RegisterTracks(TObjectPtr<ATrackManager> TrackManager);
+	void LinkTracks();
 	FTimespan GetCurrentHighScoreTime();
 
 	void SaveHighScoreToFile(FString FilePath, FString Data, bool& bAcccessSuccess, FString& OutMessage);
 	FString LoadHighScoreFromFile(FString FilePath, bool& bAcccessSuccess, FString& OutMessage);
 
-	TWeakObjectPtr<ATrackManager> GetTrack(int index);
+	TObjectPtr<ATrackManager> GetTrack(int index);
+	
 
 };

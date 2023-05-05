@@ -42,6 +42,8 @@ void ATrackManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	ShiftTrack(DeltaTime);
+	ShiftObstacles(DeltaTime);
+	ClearObstacles();
 	UpdateDifficulty(DeltaTime);
 	if (TrackDelta > 900.f) {
 		TrackDelta -= 900.f;
@@ -60,6 +62,35 @@ void ATrackManager::ShiftTrack(float const DeltaTime) {
 		TrackPiece->AddActorWorldOffset(FVector(posDelta, 0.f, 0.f));
 	}
 	TrackDelta += -posDelta;
+}
+void ATrackManager::ShiftObstacles(float const DeltaTime) {
+
+	float posDelta = DeltaTime * -TrackSpeed;
+	for (auto& Obstacle : CurrentObstacles)
+	{
+		if (Obstacle->IsValidLowLevel()) {
+			Obstacle->AddActorWorldOffset(FVector(posDelta, 0.f, 0.f));
+		}
+	}
+}
+void ATrackManager::ClearObstacles() {
+	const bool bAllowShrinking = false;
+	TWeakObjectPtr<AObstacle> ObstacleToBeRemoved;
+
+	for (int32 Index = CurrentObstacles.Num() - 1; Index >= 0; --Index)
+	{
+		ObstacleToBeRemoved = CurrentObstacles[Index];
+		if (ObstacleToBeRemoved->IsValidLowLevel())
+		{
+			if (CurrentObstacles[Index]->GetActorLocation().X < 700.f) 
+			{
+				CurrentObstacles.RemoveAt(Index, 1, bAllowShrinking);
+				PortObstacles();
+				ObstacleToBeRemoved->Destroy();
+			}
+		}
+		
+	}
 }
 void ATrackManager::UpdateDifficulty(float const DeltaTime) {
 	TrackDifficulty += DeltaTime * 0.1;
@@ -91,11 +122,9 @@ void ATrackManager::InitializeTrack()
 		CreatedTrackPiece->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 		CurrentTrackPieces.Emplace(CreatedTrackPiece);
 		HeadTrackPiece = CurrentTrackPieces[i];
-		FObstacleCollection collection;
 	}
 
 	HeadTrackPiece = CurrentTrackPieces[TrackLength - 1];
-	
 }
 void ATrackManager::LinkTrackPieces()
 {
@@ -107,6 +136,7 @@ void ATrackManager::LinkTrackPieces()
 		CurrentTrackPieces[i]->NextTrackPiece = CurrentTrackPieces[(i + 1) % TrackLength];
 	}
 
+	PlayerTrackPiece = TailTrackPiece->NextTrackPiece;
 
 }
 
@@ -122,7 +152,7 @@ void ATrackManager::SwapHeadWithTail()
 	TWeakObjectPtr<ATrackPiece> temp = TailTrackPiece->NextTrackPiece;
 	HeadTrackPiece = TailTrackPiece;
 	TailTrackPiece = temp;
-
+	PlayerTrackPiece = PlayerTrackPiece->NextTrackPiece;
 	
 }
 
@@ -130,25 +160,77 @@ void ATrackManager::SpawnObstaclesOnTrack()
 {
 	float ChanceToSpawn;
 	
-	AEndless_RunnerGameMode* mymode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
-	TArray<FVector> ObstacleRelativeOffsets = mymode->ObstacleRelativeOffsets;
+	//AEndless_RunnerGameMode* mymode = Cast<AEndless_RunnerGameMode>(GetWorld()->GetAuthGameMode());
+	//mymode->ObstacleRelativeOffsets;
 
+	TArray<FVector> ObstacleRelativeOffsets = HeadTrackPiece->ObstacleRelativeOffsets;
 	for (FVector vec : ObstacleRelativeOffsets)
 	{
 		ChanceToSpawn = FMath::RandRange(0, 100);
 		if (ChanceToSpawn < TrackDifficulty) {
 			AObstacle* Obstacle = GetWorld()->SpawnActor<AObstacle>(PossibleObstacles[0], HeadTrackPiece->TrackSeamPoint->GetComponentLocation() - vec, GetActorRotation());
-			HeadTrackPiece->AttachObstacleToTrackPiece(vec, Obstacle);
+			CurrentObstacles.Emplace(Obstacle);
+			//HeadTrackPiece->AttachObstacleToTrackPiece(vec, Obstacle);
 		}
 	}
 }
 
 void ATrackManager::RemoveTrackObstacles(TWeakObjectPtr<ATrackPiece> TrackSegmentToBeCleared)
 {
-	TArray<AActor*> Obstacles;
-	TrackSegmentToBeCleared->GetAttachedActors(Obstacles);
-	for (AActor* Obstacle : Obstacles)
-	{
-		Obstacle->Destroy();
+	//Don't like that this array is created every time. 
+	//TODO: See if UE has non-destructive allocation for resuable arrays
+	//TArray<AActor*> Obstacles;
+	//TrackSegmentToBeCleared->GetAttachedActors(Obstacles);
+	//float ChanceToPort = 0.f;
+	//for (AActor* Obstacle : Obstacles)
+	//{
+	//	ChanceToPort = FMath::RandRange(0, 100);
+
+	//	if (ChanceToPort < PortProbability) {
+	//		//PlayerTrackPiece->NextTrackPiece->NextTrackPiece->PortObstacle(PortDepth);
+	//		//PlayerTrackPiece->NextTrackPiece->NextTrackPiece->RemoveOneObstacle(PortDepth);
+	//		//TArray<AActor*> Obstacles;
+	//		//PlayerTrackPiece->NextTrackPiece->NextTrackPiece->GetAttachedActors( Obstacles);
+	//		
+	//	}
+	//	PortProbability++;
+	//	PortProbability = FMath::Clamp(PortProbability, 10.f, 100.f);
+	//	Obstacle->Destroy();
+	//	
+	//}
+}
+void ATrackManager::PortObstacles() {
+
+	const float ChanceToPort = FMath::RandRange(0, 100);
+	const bool bAllowShrinking = false;
+	TWeakObjectPtr<AObstacle> ObstacleToBeRemoved;
+	if (ChanceToPort < PortProbability) {
+
+		int32 randomIndex = FMath::RandHelper(CurrentObstacles.Num()); 
+
+		if (randomIndex == 0) 
+		{
+			return;
+		}
+		ObstacleToBeRemoved = CurrentObstacles[randomIndex];
+		if (ObstacleToBeRemoved->IsValidLowLevel())
+		{
+			CurrentObstacles.RemoveAt(randomIndex, 1, bAllowShrinking);
+			ObstacleToBeRemoved->Destroy();
+		}
 	}
 }
+
+
+void ATrackManager::RecieveTeleportedObstacle(TObjectPtr<AActor> Obstacle) {
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Recieving Obstacle"));
+	int32 DepositLength = FMath::RandRange(0, 100);
+}
+
+void ATrackManager::ConfigureId(const int32 newTrackId) {
+	TrackId = newTrackId;
+}
+void ATrackManager::ResetProbability() {
+	PortProbability = 10.f;
+}
+

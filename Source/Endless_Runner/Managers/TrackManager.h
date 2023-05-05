@@ -8,19 +8,13 @@
 #include "../TrackPiece.h"
 #include "../Factories/ObstacleFactory.h"
 #include "TrackManager.generated.h"
-USTRUCT()
-		struct FObstacleCollection
-	{
-		GENERATED_BODY()
-	public:
-		UPROPERTY()
-		TArray<TSubclassOf<AObstacle>> ObstacleCollection;
 
-		FObstacleCollection() {
-			ObstacleCollection.Reserve(9);
-		}
-	};
+UDELEGATE()
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FTeleportObstacle, AActor*, ObstacleToTeleport, int32, TrackId);
+
 UCLASS()
+
+
 class ENDLESS_RUNNER_API ATrackManager : public AActor
 {
 	GENERATED_BODY()
@@ -43,7 +37,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Obstacle Blueprints")
 	TArray<TSubclassOf<AObstacle>> PossibleObstacles;
 	
-
+	UPROPERTY()
+	FTeleportObstacle OnTeleportObstacle;
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UObstacleFactory> ObstacleFactory;
 
@@ -51,17 +46,27 @@ public:
 	TObjectPtr<UObstacleFactory> ObstacleFactoryRef;
 	UPROPERTY(BlueprintReadOnly)
 	TArray<ATrackPiece*> CurrentTrackPieces;
+	UPROPERTY(BlueprintReadOnly)
+	TArray<AObstacle*> CurrentObstacles;
 	UPROPERTY(EditAnywhere)
 	int TrackLength;
 	UPROPERTY(EditAnywhere) 
 	float TrackSpeed;
+	UPROPERTY(VisibleAnywhere) 
+	int32 TrackId;
 	
 	UPROPERTY()
 	float TrackDelta; 
 	UPROPERTY( EditAnywhere)
 	float TrackDifficulty;
+	UPROPERTY( EditAnywhere)
+	float PortProbability;
+	UPROPERTY( EditAnywhere)
+	int32 PortDepth;
 	UPROPERTY(VisibleAnywhere)
-	TWeakObjectPtr<ATrackPiece> HeadTrackPiece; 
+	TWeakObjectPtr<ATrackPiece> HeadTrackPiece;
+	UPROPERTY(VisibleAnywhere)
+	TWeakObjectPtr<ATrackPiece> PlayerTrackPiece; 
 	UPROPERTY(VisibleAnywhere)
 	TWeakObjectPtr<ATrackPiece> TailTrackPiece;
 	
@@ -75,12 +80,23 @@ public:
 	UFUNCTION()
 	void ShiftTrack(float const DeltaTime);
 	UFUNCTION()
+	void ShiftObstacles(float const DeltaTime);	
+	UFUNCTION()
+	void ClearObstacles();
+	UFUNCTION()
+	void PortObstacles();
+	UFUNCTION()
 	void UpdateDifficulty(float const DeltaTime);
 	UFUNCTION()
+	void ResetProbability();
+
+	UFUNCTION()
 	void SpawnObstaclesOnTrack();
+
+	void RecieveTeleportedObstacle(TObjectPtr<AActor> ActorToDeposit);
 	TArray<FVector> LaneOffsets;
 	
-	
+	void ConfigureId(const int32 TrackId);
 private:
 	void RemoveTrackObstacles(TWeakObjectPtr<ATrackPiece> TailTrackPiece);
 };

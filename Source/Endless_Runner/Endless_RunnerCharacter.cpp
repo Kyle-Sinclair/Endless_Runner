@@ -84,9 +84,10 @@ void AEndless_RunnerCharacter::OnCollideWithObstacle(UPrimitiveComponent* /*igno
 	//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Blue, TEXT("Actor Collision"));
 	Health--;
 	if (Health <= 0) {
-		OnKilled.Broadcast(PlayerId);
+		//OnKilled.Broadcast(PlayerId);
 	}
 	OnHealthUpdated.Broadcast(Health, PlayerId);
+	//OnTakenDamage.Broadcast();
 	OtherActor->Destroy();
 }
 
@@ -146,28 +147,30 @@ void AEndless_RunnerCharacter::BindToTrack(TObjectPtr<ATrackManager> OwningTrack
 	BoundTrack = OwningTrack;
 
 	FVector LaneAdjustment = FVector(0.f,LaneWidth,0.f);
-	FVector StartPosition = OwningTrack->GetActorLocation() + FVector(1800.f,LaneWidth,200.f);
+	FVector StartPosition = OwningTrack->GetActorLocation() + FVector(900.f,LaneWidth,200.f);
 	LaneOffSets.Add(StartPosition);
 	LaneOffSets.Add(StartPosition + LaneAdjustment);
 	LaneOffSets.Add(StartPosition + 2 * LaneAdjustment);
 	LaneNumber = 1;
 	SetActorLocation(LaneOffSets[LaneNumber]);
+	OnTakenDamage.AddDynamic(OwningTrack, &ATrackManager::ResetProbability);
 
 }
-void AEndless_RunnerCharacter::BindToTrack(TWeakObjectPtr<ATrackManager> OwningTrack) {
-	if (OwningTrack.IsValid()) {
-		BoundTrack = OwningTrack;
-
-		FVector LaneAdjustment = FVector(0.f, LaneWidth, 0.f);
-		FVector StartPosition = OwningTrack->GetActorLocation() + FVector(1800.f, LaneWidth, 200.f);
-		LaneOffSets.Add(StartPosition);
-		LaneOffSets.Add(StartPosition + LaneAdjustment);
-		LaneOffSets.Add(StartPosition + 2 * LaneAdjustment);
-		LaneNumber = 1;
-		SetActorLocation(LaneOffSets[LaneNumber]);
-	}
-
-}
+//void AEndless_RunnerCharacter::BindToTrack(TWeakObjectPtr<ATrackManager> OwningTrack) {
+//	if (OwningTrack.IsValid()) {
+//		BoundTrack = OwningTrack;
+//
+//		FVector LaneAdjustment = FVector(0.f, LaneWidth, 0.f);
+//		FVector StartPosition = OwningTrack->GetActorLocation() + FVector(1800.f, LaneWidth, 200.f);
+//		LaneOffSets.Add(StartPosition);
+//		LaneOffSets.Add(StartPosition + LaneAdjustment);
+//		LaneOffSets.Add(StartPosition + 2 * LaneAdjustment);
+//		LaneNumber = 1;
+//		SetActorLocation(LaneOffSets[LaneNumber]);
+//	}
+//
+//
+//}
 
 void AEndless_RunnerCharacter::SetPlayerId(int32 Id) {
 	PlayerId = Id;

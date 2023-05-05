@@ -10,6 +10,7 @@
 #include "Endless_RunnerCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FUpdateHealthDelegate, int32, Health, int32, PlayerID);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTakenDamage);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAnnounceKilledDelegate, int32, Health);
 
 
@@ -61,12 +62,14 @@ public:
 	AEndless_RunnerCharacter();
 	void OnBeginOverlap();
 	void BindToTrack(TObjectPtr<ATrackManager> OwningTrack);
-	void BindToTrack(TWeakObjectPtr<ATrackManager> OwningTrack);
+	//void BindToTrack(TWeakObjectPtr<ATrackManager> OwningTrack);
 	void SetPlayerId(int32 Id);
 	UPROPERTY()
 	FUpdateHealthDelegate OnHealthUpdated;
 	UPROPERTY()
 	FAnnounceKilledDelegate OnKilled;
+	UPROPERTY()
+	FTakenDamage OnTakenDamage;
 	UPROPERTY(VisibleAnywhere)
 	int32 Health;
 protected:

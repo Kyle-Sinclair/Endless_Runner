@@ -26,9 +26,15 @@ protected:
 private:
 	TArray<FVector> ObstacleSlots;
 	TArray<AObstacle*> Obstacles;
+	UPROPERTY(VisibleAnywhere)
+	TMap<int32, TWeakObjectPtr<AObstacle>> ObstacleMap;
+	UPROPERTY(EditDefaultsOnly)
+	int32 ObstacleMappingSize;
+	UFUNCTION()
+		void InitializeObstacleOffsets();
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	//virtual void Tick(float DeltaTime) override;
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* SuperMesh; 
 
@@ -44,7 +50,12 @@ public:
 	/*UPROPERTY()
 	TWeakObjectPtr<ATrackPiece> NextTrackPiece;*/
 	UPROPERTY(VisibleAnywhere)
-	TWeakObjectPtr<ATrackPiece> NextTrackPiece;
+	TWeakObjectPtr<ATrackPiece> NextTrackPiece;	
+	UPROPERTY(VisibleAnywhere)
+	TWeakObjectPtr<ATrackPiece> LinkedTrackPiece;
+	UPROPERTY(VisibleAnywhere)
+	TArray<FVector> ObstacleRelativeOffsets;
+
 	UFUNCTION()
 	void DeactivateTrackPiece(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
@@ -54,4 +65,11 @@ public:
 
 public:
 	void AttachObstacleToTrackPiece(const FVector SpawnPosition, AObstacle* ObstacleToWeld);
+	void MapObstacleToTrackPiece(const int32 OffsetMapping, const FVector SpawnPosition, AObstacle* ObstacleToWeld);
+	void SetObstacleMapSize();
+	bool HasObstacles();
+	void PortObstacle(const int32 DepthCount);
+	void RemoveOneObstacle(const int32 DepthCount);
+	void DepositObstacle( FVector RelativeLocation);
+	AActor* SelectRandomObstacle();
 };

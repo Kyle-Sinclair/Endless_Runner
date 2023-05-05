@@ -12,7 +12,6 @@
 
 #include "Endless_RunnerGameMode.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPopulateObstacles, ATrackPiece, Health);
 
 UCLASS(minimalapi)
 class AEndless_RunnerGameMode : public AGameModeBase

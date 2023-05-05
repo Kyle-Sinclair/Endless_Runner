@@ -5,6 +5,7 @@
 #include "../Endless_RunnerGameMode.h"
 #include "HAL/PlatformFilemanager.h"
 #include "Misc/Paths.h"
+#include "../Obstacle.h"
 
 #include "Misc/Timespan.h"
 
@@ -15,7 +16,7 @@ void UEndlessRunnerGameInstance::Init() {
 
 	AccessSaveFile();
 }
-TWeakObjectPtr<ATrackManager> UEndlessRunnerGameInstance::GetTrack(int index) {
+TObjectPtr<ATrackManager> UEndlessRunnerGameInstance::GetTrack(int index) {
 
 	return PlayerTracks[index];
 }
@@ -23,11 +24,21 @@ TWeakObjectPtr<ATrackManager> UEndlessRunnerGameInstance::GetTrack(int index) {
 void UEndlessRunnerGameInstance::RegisterTracks(TObjectPtr<ATrackManager> TrackManager)
 {
 	 PlayerTracks.Add(TrackManager);
+	 TrackManager->OnTeleportObstacle.AddDynamic(this, &UEndlessRunnerGameInstance::DepositObstacle);
 	 if (PlayerTracks.Contains(TrackManager))
 	 {
 		 GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Track Registered"));
 	 }
 
+}
+void UEndlessRunnerGameInstance::LinkTracks()
+{
+	int32 TrackLength = PlayerTracks[0]->TrackLength;
+	for (int i = 0; i < TrackLength; i++) {
+		PlayerTracks[0]->CurrentTrackPieces[i]->LinkedTrackPiece = PlayerTracks[1]->CurrentTrackPieces[i];
+		PlayerTracks[1]->CurrentTrackPieces[i]->LinkedTrackPiece = PlayerTracks[0]->CurrentTrackPieces[i];
+		
+	}
 }
 
 
@@ -62,13 +73,13 @@ void UEndlessRunnerGameInstance::SaveHighScoreToFile(FString FilePath, FString D
 	if (FFileHelper::SaveStringToFile(Data, *FilePath)) {
 		bAcccessSuccess = true;
 		OutMessage = FString::Printf(TEXT("File Saved Successfully"));
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, OutMessage);
+		//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, OutMessage);
 
 	}
 	else {
 		bAcccessSuccess = false;
 		OutMessage = FString::Printf(TEXT("Failed to save file"));
-		GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, OutMessage);
+		//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, OutMessage);
 
 	}
 
@@ -105,7 +116,11 @@ void UEndlessRunnerGameInstance::CheckHighScore(const FTimespan SubmittedTimespa
 	}
 
 }
-
+void UEndlessRunnerGameInstance::DepositObstacle(AActor* Obstacle, int32 TrackId) {
+	int32 TrackToDepositId = (TrackId + 1) % PlayerTracks.Num();
+	PlayerTracks[TrackToDepositId]->RecieveTeleportedObstacle(Obstacle);
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Teleporting Obstacle"));
+}
 FTimespan UEndlessRunnerGameInstance::GetCurrentHighScoreTime() {
 	//return FTimespan::Zero();
 	return CurrentHighScoreTime;

@@ -17,15 +17,15 @@ AEndless_RunnerGameMode::AEndless_RunnerGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
-	ObstacleRelativeOffsets.Add(FVector(250.f, -200.f, -150.f));
-	ObstacleRelativeOffsets.Add(FVector(550.f, -200.f, -150.f));
-	ObstacleRelativeOffsets.Add(FVector(850.f, -200.f, -150.f));
-	ObstacleRelativeOffsets.Add(FVector(250.f, -400.f, -150.f));
-	ObstacleRelativeOffsets.Add(FVector(550.f, -400.f, -150.f));
-	ObstacleRelativeOffsets.Add(FVector(850.f, -400.f, -150.f)); 
-	ObstacleRelativeOffsets.Add(FVector(250.f, -600.f, -150.f));
-	ObstacleRelativeOffsets.Add(FVector(550.f, -600.f, -150.f));
-	ObstacleRelativeOffsets.Add(FVector(850.f, -600.f, -150.f));
+	ObstacleRelativeOffsets.Add(FVector(250.f, -200.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(550.f, -200.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(850.f, -200.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(250.f, -400.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(550.f, -400.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(850.f, -400.f, -100.f)); 
+	ObstacleRelativeOffsets.Add(FVector(250.f, -600.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(550.f, -600.f, -100.f));
+	ObstacleRelativeOffsets.Add(FVector(850.f, -600.f, -100.f));
 
 	LaneOffSets.Add(FVector(1550.f, 150.f, 200.f));
 	LaneOffSets.Add(FVector(1550.f, 450.f, 200.f));
@@ -54,7 +54,6 @@ void AEndless_RunnerGameMode::StartPlay()
 void AEndless_RunnerGameMode::LinkController() {
 	DPController = CastChecked<ADualPlayerController>(GetWorld()->GetFirstPlayerController());
 	DPController->UpdateTimeToBeat(GameInstance->GetCurrentHighScoreTime());
-	//DPController->UpdateTimeToBeat(FTimespan::Zero());
 }
 
 void AEndless_RunnerGameMode::SpawnTracks()
@@ -68,8 +67,10 @@ void AEndless_RunnerGameMode::SpawnTracks()
 	for (int i = 0; i < NumPlayers; i++) {
 		SpawnPoint = SpawnPoint + (i * SpawnOffset);
 		TObjectPtr<ATrackManager> TrackManager = WorldRef->SpawnActor<ATrackManager>(TrackImplementation, SpawnPoint, SpawnRotation, spawnParam);
+		TrackManager->ConfigureId(i);
 		Instance->RegisterTracks(TrackManager);
 	}
+	Instance->LinkTracks();
 }
 
 void AEndless_RunnerGameMode::SpawnPlayers()
@@ -81,7 +82,7 @@ void AEndless_RunnerGameMode::SpawnPlayers()
 	FActorSpawnParameters spawnParam;
 
 	for (int i = 0; i < NumPlayers; i++) {
-		TWeakObjectPtr < ATrackManager> TrackManager = Instance->GetTrack(i);
+		TObjectPtr<ATrackManager> TrackManager = Instance->GetTrack(i);
 		AEndless_RunnerCharacter* Character = WorldRef->SpawnActor<AEndless_RunnerCharacter>(CharacterImplementation, SpawnPoint + FVector(0.f, 0.f, 200.f), SpawnRotation, spawnParam);
 		Character->SetPlayerId(i);
 		Character->BindToTrack(TrackManager);
@@ -102,10 +103,10 @@ void AEndless_RunnerGameMode::FinishGame(int32 LosingPlayerId) {
 	UGameplayStatics::SetGamePaused(GetWorld(),true);
 	float realtimeSeconds = UGameplayStatics::GetTimeSeconds(GetWorld());
 	FTimespan TimeToSubmit = FTimespan::FromSeconds(realtimeSeconds);
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TimeToSubmit.ToString());
+	//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TimeToSubmit.ToString());
 
 	GameInstance->CheckHighScore(TimeToSubmit);
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Saving new high score"));
+	//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Saving new high score"));
 
 	DPController->UpdateTimeToBeat(GameInstance->GetCurrentHighScoreTime());
 
