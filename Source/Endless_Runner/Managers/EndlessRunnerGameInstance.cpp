@@ -24,7 +24,7 @@ TObjectPtr<ATrackManager> UEndlessRunnerGameInstance::GetTrack(int index) {
 void UEndlessRunnerGameInstance::RegisterTracks(TObjectPtr<ATrackManager> TrackManager)
 {
 	 PlayerTracks.Add(TrackManager);
-	 TrackManager->OnTeleportObstacle.AddDynamic(this, &UEndlessRunnerGameInstance::DepositObstacle);
+	 //TrackManager->OnTeleportObstacle.AddDynamic(this, &UEndlessRunnerGameInstance::DepositObstacle);
 	 if (PlayerTracks.Contains(TrackManager))
 	 {
 		 GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Track Registered"));
@@ -39,6 +39,8 @@ void UEndlessRunnerGameInstance::LinkTracks()
 		PlayerTracks[1]->CurrentTrackPieces[i]->LinkedTrackPiece = PlayerTracks[0]->CurrentTrackPieces[i];
 		
 	}
+	PlayerTracks[0]->LinkedTrack = PlayerTracks[1];
+	PlayerTracks[1]->LinkedTrack = PlayerTracks[0];
 }
 
 
@@ -115,11 +117,6 @@ void UEndlessRunnerGameInstance::CheckHighScore(const FTimespan SubmittedTimespa
 
 	}
 
-}
-void UEndlessRunnerGameInstance::DepositObstacle(AActor* Obstacle, int32 TrackId) {
-	int32 TrackToDepositId = (TrackId + 1) % PlayerTracks.Num();
-	PlayerTracks[TrackToDepositId]->RecieveTeleportedObstacle(Obstacle);
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Teleporting Obstacle"));
 }
 FTimespan UEndlessRunnerGameInstance::GetCurrentHighScoreTime() {
 	//return FTimespan::Zero();

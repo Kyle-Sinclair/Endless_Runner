@@ -26,21 +26,17 @@ void ATrackManager::BeginPlay()
 
 	TrackDelta = 0.f;
 	TrackDifficulty = 5.f;
-
+	ObstaclesToPort = 0;
 	InitializeTrack();
 	LinkTrackPieces();
-
-
-
-
-	
-
 }
 
 // Called every frame
 void ATrackManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	RecieveObstacles();
+	PortObstacles();
 	ShiftTrack(DeltaTime);
 	ShiftObstacles(DeltaTime);
 	ClearObstacles();
@@ -85,9 +81,25 @@ void ATrackManager::ClearObstacles() {
 			if (CurrentObstacles[Index]->GetActorLocation().X < 700.f) 
 			{
 				CurrentObstacles.RemoveAt(Index, 1, bAllowShrinking);
-				PortObstacles();
+				ObstaclesToPort++;
+				//PortObstacles();
 				ObstacleToBeRemoved->Destroy();
 			}
+		}
+		
+	}
+}
+void ATrackManager::RecieveObstacles() {
+	const bool bAllowShrinking = false;
+	TObjectPtr<AObstacle> ObstacleToBeRecieved;
+
+	for (int32 Index = RecievedObstacles.Num() - 1; Index >= 0; --Index)
+	{
+		ObstacleToBeRecieved = RecievedObstacles[Index];
+		if (ObstacleToBeRecieved->IsValidLowLevel())
+		{
+			CurrentObstacles.Emplace(ObstacleToBeRecieved);
+			RecievedObstacles.RemoveAt(Index, 1, bAllowShrinking);
 		}
 		
 	}
@@ -201,36 +213,58 @@ void ATrackManager::RemoveTrackObstacles(TWeakObjectPtr<ATrackPiece> TrackSegmen
 }
 void ATrackManager::PortObstacles() {
 
-	const float ChanceToPort = FMath::RandRange(0, 100);
-	const bool bAllowShrinking = false;
-	TWeakObjectPtr<AObstacle> ObstacleToBeRemoved;
-	if (ChanceToPort < PortProbability) {
+	while (ObstaclesToPort > 0) {
+		ObstaclesToPort--;
+		const float ChanceToPort = FMath::RandRange(0, 100);
+		const bool bAllowShrinking = false;
+		TObjectPtr<AObstacle> ObstacleToBeRemoved;
+		if (ChanceToPort < PortProbability) {
 
-		int32 randomIndex = FMath::RandHelper(CurrentObstacles.Num()); 
+			int32 randomIndex = FMath::RandHelper(CurrentObstacles.Num());
 
-		if (randomIndex == 0) 
-		{
-			return;
-		}
-		ObstacleToBeRemoved = CurrentObstacles[randomIndex];
-		if (ObstacleToBeRemoved->IsValidLowLevel())
-		{
-			CurrentObstacles.RemoveAt(randomIndex, 1, bAllowShrinking);
-			ObstacleToBeRemoved->Destroy();
+			if (randomIndex == 0)
+			{
+				return;
+			}
+			ObstacleToBeRemoved = CurrentObstacles[randomIndex];
+			if (ObstacleToBeRemoved)
+			{
+				CurrentObstacles.RemoveAt(randomIndex, 1, bAllowShrinking);
+				LinkedTrack->RecieveTeleportedObstacle(ObstacleToBeRemoved);
+			}
 		}
 	}
 }
 
 
-void ATrackManager::RecieveTeleportedObstacle(TObjectPtr<AActor> Obstacle) {
+void ATrackManager::RecieveTeleportedObstacle(TObjectPtr<AObstacle> Obstacle) {
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Recieving Obstacle"));
-	int32 DepositLength = FMath::RandRange(0, 100);
+	//int32 DepositLength = FMath::RandRange(0, 100);
+	if (Obstacle) {
+		RecievedObstacles.Emplace(Obstacle);
+		FVector LocalOffset = GetLocalOffset();
+		bool bSweep = false;
+		FHitResult result;
+		Obstacle->AddActorLocalOffset(LocalOffset,bSweep,&result);
+		if (result.bBlockingHit) {
+			Obstacle->AddActorLocalOffset(FVector(0.f, 0.f, 150.f));
+		}
+	}
+}
+
+
+FVector ATrackManager::GetLocalOffset() {
+	if (TrackId == 0) {
+		return FVector(0.f, -950.f, 0.f);
+	}
+	else
+		return FVector(0.f, 950.f, 0.f);
 }
 
 void ATrackManager::ConfigureId(const int32 newTrackId) {
 	TrackId = newTrackId;
 }
 void ATrackManager::ResetProbability() {
-	PortProbability = 10.f;
+	//PortProbability = 10.f;
 }
 

@@ -20,7 +20,20 @@ class ENDLESS_RUNNER_API UEndlessRunnerGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 private:
-	
+	///// Saving and Loading Functions ///////
+	void SaveHighScoreToFile(FString FilePath, FString Data, bool& bAcccessSuccess, FString& OutMessage);
+	FString LoadHighScoreFromFile(FString FilePath, bool& bAcccessSuccess, FString& OutMessage);
+	void AccessSaveFile();
+
+
+	///// Saving and Loading Fields ///////
+	UPROPERTY(EditDefaultsOnly)
+		FString ConfigurableSaveFilePathName;
+	FString SaveFilePathName;
+
+
+	///// Game Configuration ///////
+
 	UPROPERTY(EditDefaultsOnly)
 		FVector StartingSpawnPoint;
 	UPROPERTY(EditDefaultsOnly)
@@ -30,31 +43,28 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<AEndless_RunnerCharacter> CharacterImplementation;
 
-	TArray<TObjectPtr<ATrackManager>> PlayerTracks;
-	UPROPERTY(EditDefaultsOnly)
-	FString ConfigurableSaveFilePathName;	
-	FString SaveFilePathName;
-	UPROPERTY(VisibleAnywhere)
 
-	FTimespan CurrentHighScoreTime;
-	virtual void Init() override;
-	void AccessSaveFile();
+	///// In Game References ///////
 
 public:
 	UPROPERTY()
 	int NumPlayers;
 	void CheckHighScore(const FTimespan SubmittedScore);
-	UFUNCTION()
-	void DepositObstacle(AActor* ObstacleToTeleport, int32 TrackId);
-public:
 	void RegisterTracks(TObjectPtr<ATrackManager> TrackManager);
 	void LinkTracks();
 	FTimespan GetCurrentHighScoreTime();
 
-	void SaveHighScoreToFile(FString FilePath, FString Data, bool& bAcccessSuccess, FString& OutMessage);
-	FString LoadHighScoreFromFile(FString FilePath, bool& bAcccessSuccess, FString& OutMessage);
+	TArray<TObjectPtr<ATrackManager>> PlayerTracks;
+	
+	UPROPERTY(VisibleAnywhere)
+
+	FTimespan CurrentHighScoreTime;
+	virtual void Init() override;
 
 	TObjectPtr<ATrackManager> GetTrack(int index);
+
+
+
 	
 
 };

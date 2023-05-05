@@ -51,7 +51,6 @@ AEndless_RunnerCharacter::AEndless_RunnerCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-	//OnActorHit.AddDynamic(this, &AEndless_RunnerCharacter::OnBeginOverlap);
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 	
@@ -81,13 +80,12 @@ void AEndless_RunnerCharacter::BeginPlay()
 
 void AEndless_RunnerCharacter::OnCollideWithObstacle(UPrimitiveComponent* /*ignored*/, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Blue, TEXT("Actor Collision"));
 	Health--;
 	if (Health <= 0) {
-		//OnKilled.Broadcast(PlayerId);
+		OnKilled.Broadcast(PlayerId);
 	}
 	OnHealthUpdated.Broadcast(Health, PlayerId);
-	//OnTakenDamage.Broadcast();
+	OnTakenDamage.Broadcast();
 	OtherActor->Destroy();
 }
 
@@ -112,16 +110,17 @@ void AEndless_RunnerCharacter::Move(const FInputActionValue& Value)
 	
 	//Player input testing
 
-
-	FVector2D MovementVector = Value.Get<FVector2D>();
-	LaneNumber += MovementVector.X;
+	if (GetCharacterMovement()->IsMovingOnGround()) {
+		FVector2D MovementVector = Value.Get<FVector2D>();
+		LaneNumber += MovementVector.X;
 		if (LaneNumber < 0) {
 			LaneNumber = 2;
 		}
 		LaneNumber = LaneNumber % 3;
 
-	FVector newLocation = LaneOffSets[LaneNumber];
-	SetActorLocation(newLocation);
+		FVector newLocation = LaneOffSets[LaneNumber];
+		SetActorLocation(newLocation);
+	}
 }
 
 void AEndless_RunnerCharacter::Look(const FInputActionValue& Value)
@@ -156,22 +155,6 @@ void AEndless_RunnerCharacter::BindToTrack(TObjectPtr<ATrackManager> OwningTrack
 	OnTakenDamage.AddDynamic(OwningTrack, &ATrackManager::ResetProbability);
 
 }
-//void AEndless_RunnerCharacter::BindToTrack(TWeakObjectPtr<ATrackManager> OwningTrack) {
-//	if (OwningTrack.IsValid()) {
-//		BoundTrack = OwningTrack;
-//
-//		FVector LaneAdjustment = FVector(0.f, LaneWidth, 0.f);
-//		FVector StartPosition = OwningTrack->GetActorLocation() + FVector(1800.f, LaneWidth, 200.f);
-//		LaneOffSets.Add(StartPosition);
-//		LaneOffSets.Add(StartPosition + LaneAdjustment);
-//		LaneOffSets.Add(StartPosition + 2 * LaneAdjustment);
-//		LaneNumber = 1;
-//		SetActorLocation(LaneOffSets[LaneNumber]);
-//	}
-//
-//
-//}
-
 void AEndless_RunnerCharacter::SetPlayerId(int32 Id) {
 	PlayerId = Id;
 }

@@ -27,7 +27,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	FVector GetLocalOffset();
+	int32 ObstaclesToPort;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -47,7 +48,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<ATrackPiece*> CurrentTrackPieces;
 	UPROPERTY(BlueprintReadOnly)
-	TArray<AObstacle*> CurrentObstacles;
+	TArray<TObjectPtr<AObstacle>> CurrentObstacles;
+	UPROPERTY()
+	TArray<TObjectPtr<AObstacle>> RecievedObstacles;
 	UPROPERTY(EditAnywhere)
 	int TrackLength;
 	UPROPERTY(EditAnywhere) 
@@ -63,6 +66,8 @@ public:
 	float PortProbability;
 	UPROPERTY( EditAnywhere)
 	int32 PortDepth;
+	UPROPERTY(VisibleAnywhere)
+	TWeakObjectPtr<ATrackManager> LinkedTrack;
 	UPROPERTY(VisibleAnywhere)
 	TWeakObjectPtr<ATrackPiece> HeadTrackPiece;
 	UPROPERTY(VisibleAnywhere)
@@ -84,16 +89,18 @@ public:
 	UFUNCTION()
 	void ClearObstacles();
 	UFUNCTION()
-	void PortObstacles();
+	void PortObstacles();	
+
+	UFUNCTION()
+	void RecieveObstacles();
 	UFUNCTION()
 	void UpdateDifficulty(float const DeltaTime);
 	UFUNCTION()
 	void ResetProbability();
-
 	UFUNCTION()
 	void SpawnObstaclesOnTrack();
 
-	void RecieveTeleportedObstacle(TObjectPtr<AActor> ActorToDeposit);
+	void RecieveTeleportedObstacle(TObjectPtr<AObstacle> ActorToDeposit);
 	TArray<FVector> LaneOffsets;
 	
 	void ConfigureId(const int32 TrackId);
