@@ -25,13 +25,9 @@ protected:
 
 private:
 	TArray<FVector> ObstacleSlots;
-	TArray<AObstacle*> Obstacles;
-	UPROPERTY(VisibleAnywhere)
-	TMap<int32, TWeakObjectPtr<AObstacle>> ObstacleMap;
-	UPROPERTY(EditDefaultsOnly)
-	int32 ObstacleMappingSize;
+	
 	UFUNCTION()
-		void InitializeObstacleOffsets();
+	void InitializeObstacleOffsets();
 public:	
 	// Called every frame
 	//virtual void Tick(float DeltaTime) override;
@@ -63,13 +59,5 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Track Blueprints")
 	TArray<TSubclassOf<AObstacle>> PossibleObstacles;
 
-public:
-	void AttachObstacleToTrackPiece(const FVector SpawnPosition, AObstacle* ObstacleToWeld);
-	void MapObstacleToTrackPiece(const int32 OffsetMapping, const FVector SpawnPosition, AObstacle* ObstacleToWeld);
-	void SetObstacleMapSize();
-	bool HasObstacles();
-	void PortObstacle(const int32 DepthCount);
-	void RemoveOneObstacle(const int32 DepthCount);
-	void DepositObstacle( FVector RelativeLocation);
-	AActor* SelectRandomObstacle();
+
 };

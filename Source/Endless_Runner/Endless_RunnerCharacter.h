@@ -18,17 +18,13 @@ UCLASS(config=Game)
 class AEndless_RunnerCharacter : public ACharacter
 {
 	GENERATED_BODY()
-
-
-	
-
-
 public:
 	AEndless_RunnerCharacter();
 
 	///// Configurations Methods /////
 	void BindToTrack(TObjectPtr<ATrackManager> OwningTrack);
 	void SetPlayerId(int32 Id);
+
 	///// Delegates for reporting to interested systems /////
 	UPROPERTY()
 		FUpdateHealthDelegate OnHealthUpdated;
@@ -40,8 +36,7 @@ public:
 		int32 Health;
 
 protected:
-	///// Personal Data Methods /////
-
+	///// Personal Data Methods and Fields /////
 	UPROPERTY(VisibleAnywhere)
 		int32 LaneNumber;
 	UPROPERTY(VisibleAnywhere)
@@ -51,12 +46,9 @@ protected:
 		TArray<FVector> LaneOffSets;
 	UPROPERTY(EditDefaultsOnly)
 		float LaneWidth = 250.f;
-	
 		int32 PlayerId;
 
 	///// Overridden methods from base class /////
-
-
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	/// <summary>
 	/// Does binding of impact collusion to capsule component
