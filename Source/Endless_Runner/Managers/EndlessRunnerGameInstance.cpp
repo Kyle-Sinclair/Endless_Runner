@@ -24,21 +24,15 @@ void UEndlessRunnerGameInstance::RegisterTracks(TObjectPtr<ATrackManager> TrackM
 	 PlayerTracks.Add(TrackManager);
 	 if (PlayerTracks.Contains(TrackManager))
 	 {
-		 GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, TEXT("Track Registered"));
+		 //GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Green, FString::Printf(TEXT("Track Registered %i"), PlayerTracks.Num()));
 	 }
 
 }
-void UEndlessRunnerGameInstance::LinkTracks()
+void UEndlessRunnerGameInstance::ClearTracks()
 {
-	int32 TrackLength = PlayerTracks[0]->TrackLength;
-	for (int i = 0; i < TrackLength; i++) {
-		PlayerTracks[0]->CurrentTrackPieces[i]->LinkedTrackPiece = PlayerTracks[1]->CurrentTrackPieces[i];
-		PlayerTracks[1]->CurrentTrackPieces[i]->LinkedTrackPiece = PlayerTracks[0]->CurrentTrackPieces[i];
-		
-	}
-	PlayerTracks[0]->LinkedTrack = PlayerTracks[1];
-	PlayerTracks[1]->LinkedTrack = PlayerTracks[0];
+	PlayerTracks.Reset();
 }
+
 
 
 void UEndlessRunnerGameInstance::AccessSaveFile() {
@@ -98,6 +92,11 @@ FString UEndlessRunnerGameInstance::LoadHighScoreFromFile(FString FilePath, bool
 
 	bAcccessSuccess = true;
 	return RetValue;
+}
+void UEndlessRunnerGameInstance::LinkTracks() {
+
+	PlayerTracks[0]->LinkedTrack = PlayerTracks[1];
+	PlayerTracks[1]->LinkedTrack = PlayerTracks[0];
 }
 
 void UEndlessRunnerGameInstance::CheckHighScore(const FTimespan SubmittedTimespan) {

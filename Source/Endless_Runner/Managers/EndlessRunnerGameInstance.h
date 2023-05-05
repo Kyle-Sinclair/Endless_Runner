@@ -60,10 +60,11 @@ public:
 
 	void CheckHighScore(const FTimespan SubmittedScore);
 	void RegisterTracks(TObjectPtr<ATrackManager> TrackManager);
-	void LinkTracks();
 	FTimespan GetCurrentHighScoreTime();
 
 	TObjectPtr<ATrackManager> GetTrack(int index);
+	void ClearTracks();
+	void LinkTracks();
 
 
 

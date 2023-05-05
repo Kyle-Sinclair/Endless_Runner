@@ -45,12 +45,14 @@ void AEndless_RunnerGameMode::LinkController() {
 	DPController->UpdateTimeToBeat(GameInstance->GetCurrentHighScoreTime());
 }
 /// <summary>
-/// Spawns tracks, registers them with game instance and then gets game instance to link them to each other for obstacle teleportation
+/// Spawns tracks, registers them with game instance
 /// </summary>
 void AEndless_RunnerGameMode::SpawnTracks()
 {
 	UWorld* WorldRef = GetWorld();
 	UEndlessRunnerGameInstance* Instance = Cast<UEndlessRunnerGameInstance>(GetWorld()->GetGameInstance());
+	Instance->ClearTracks();
+
 	FVector SpawnPoint = StartingSpawnPoint;
 	FRotator SpawnRotation = FRotator(0.f, 0.f, 0.f);
 	FActorSpawnParameters spawnParam;
@@ -94,6 +96,8 @@ void AEndless_RunnerGameMode::FinishGame(int32 LosingPlayerId) {
 	FTimespan TimeToSubmit = FTimespan::FromSeconds(realtimeSeconds);
 	GameInstance->CheckHighScore(TimeToSubmit);
 	DPController->UpdateTimeToBeat(GameInstance->GetCurrentHighScoreTime());
+	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+
 
 }
 

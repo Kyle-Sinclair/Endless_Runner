@@ -62,7 +62,6 @@ void ADualPlayerController::RegisterPlayer(TObjectPtr<AEndless_RunnerCharacter> 
 		Player1->OnHealthUpdated.AddDynamic(this, &ADualPlayerController::UpdateHealthUI);
 		Player1->Health = GameMode->StartingHealth;
 		UpdateHealthUI(Player1->Health, 0);
-		
 	}
 	else {
 		Player2 = NewCharacter;
