@@ -50,6 +50,7 @@ void ADualPlayerController::SetupPlayerInputComponent()
 	EnhancedInputComponent->BindAction(JumpAction2, ETriggerEvent::Completed, this, &ADualPlayerController::JumpPlayer2);
 	EnhancedInputComponent->BindAction(MoveAction2, ETriggerEvent::Triggered, this, &ADualPlayerController::MovePlayer2);
 	EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Triggered, this, &ADualPlayerController::PauseGame);
+	EnhancedInputComponent->BindAction(QuitAction, ETriggerEvent::Triggered, this, &ADualPlayerController::QuitGame);
 }
 /// <summary>
 /// Binds game mode created characters to this controller
@@ -108,4 +109,9 @@ void ADualPlayerController::PauseGame() {
 
 	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Yellow, TEXT("Pause Input recieved"));
 	GameMode->PauseGame();
+}
+void ADualPlayerController::QuitGame() {
+
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE, 15.f, FColor::Yellow, TEXT("Pause Input recieved"));
+	GameMode->QuitGame();
 }

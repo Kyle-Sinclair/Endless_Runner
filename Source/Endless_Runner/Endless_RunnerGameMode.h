@@ -52,6 +52,7 @@ public:
 	UFUNCTION()
 	void FinishGame(int32 LosingPlayerId);
 	void PauseGame();
+	void QuitGame();
 
 protected:
 	

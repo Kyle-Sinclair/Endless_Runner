@@ -6,7 +6,7 @@
 #include "Managers/EndlessRunnerGameInstance.h"
 #include "Managers/TrackManager.h"
 #include "Engine/EngineTypes.h"
-
+#include "Kismet/KismetSystemLibrary.h"
 #include "UObject/ConstructorHelpers.h"
 
 AEndless_RunnerGameMode::AEndless_RunnerGameMode()
@@ -110,6 +110,11 @@ void AEndless_RunnerGameMode::PauseGame() {
 		UGameplayStatics::SetGamePaused(WorldRef, true);
 	}
 }
+void AEndless_RunnerGameMode::QuitGame() {
+	
+	UKismetSystemLibrary::QuitGame(GetWorld(),DPController,EQuitPreference::Quit,false);
+}
+
 
 /// <summary>
 /// Overrides of base function for creating players

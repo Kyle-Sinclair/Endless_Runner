@@ -60,6 +60,8 @@ protected:
 		class UInputAction* MoveAction2;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* PauseAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		class UInputAction* QuitAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = UI, meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<UHUDWidget> HUDImplementation;
 
@@ -74,6 +76,8 @@ protected:
 		void JumpPlayer2();
 	UFUNCTION()
 		void PauseGame();
+	UFUNCTION()
+		void QuitGame();
 
 	///// Overridden functions /////
 	virtual void BeginPlay() override;
