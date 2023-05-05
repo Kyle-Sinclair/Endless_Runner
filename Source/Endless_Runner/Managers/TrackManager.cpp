@@ -46,49 +46,9 @@ void ATrackManager::Tick(float DeltaTime)
 		SwapHeadWithTail();
 		SpawnObstaclesOnTrack();
 	}
-
-	
 }
-
-void ATrackManager::ShiftTrack(float const DeltaTime) {
-	
-	float posDelta = DeltaTime  * -TrackSpeed;
-	for (auto& TrackPiece : CurrentTrackPieces)
-	{
-		TrackPiece->AddActorWorldOffset(FVector(posDelta, 0.f, 0.f));
-	}
-	TrackDelta += -posDelta;
-}
-void ATrackManager::ShiftObstacles(float const DeltaTime) {
-
-	float posDelta = DeltaTime * -TrackSpeed;
-	for (auto& Obstacle : CurrentObstacles)
-	{
-		if (Obstacle->IsValidLowLevel()) {
-			Obstacle->AddActorWorldOffset(FVector(posDelta, 0.f, 0.f));
-		}
-	}
-}
-void ATrackManager::ClearObstacles() {
-	const bool bAllowShrinking = false;
-	TWeakObjectPtr<AObstacle> ObstacleToBeRemoved;
-
-	for (int32 Index = CurrentObstacles.Num() - 1; Index >= 0; --Index)
-	{
-		ObstacleToBeRemoved = CurrentObstacles[Index];
-		if (ObstacleToBeRemoved->IsValidLowLevel())
-		{
-			if (CurrentObstacles[Index]->GetActorLocation().X < 700.f) 
-			{
-				CurrentObstacles.RemoveAt(Index, 1, bAllowShrinking);
-				ObstaclesToPort++;
-				//PortObstacles();
-				ObstacleToBeRemoved->Destroy();
-			}
-		}
-		
-	}
-}
+///// 
+//Empty collection of teleported obstacles and move them to managed obstacle collection
 void ATrackManager::RecieveObstacles() {
 	const bool bAllowShrinking = false;
 	TObjectPtr<AObstacle> ObstacleToBeRecieved;
@@ -101,60 +61,107 @@ void ATrackManager::RecieveObstacles() {
 			CurrentObstacles.Emplace(ObstacleToBeRecieved);
 			RecievedObstacles.RemoveAt(Index, 1, bAllowShrinking);
 		}
-		
+
 	}
 }
+/// <summary>
+/// Checks to see if should port an obstacle to the other track based on
+/// the value of ObstaclesToPort
+/// Has to be called before Shift obstacles to avoid access competition
+/// </summary>
+void ATrackManager::PortObstacles() {
+
+	while (ObstaclesToPort > 0) {
+
+		ObstaclesToPort--;
+		const float ChanceToPort = FMath::RandRange(0, 100);
+		const bool bAllowShrinking = false;
+		TObjectPtr<AObstacle> ObstacleToBeRemoved;
+
+		if (ChanceToPort < PortProbability) {
+
+			int32 randomIndex = FMath::RandHelper(CurrentObstacles.Num());
+
+			if (randomIndex == 0)
+			{
+				return;
+			}
+			ObstacleToBeRemoved = CurrentObstacles[randomIndex];
+			if (ObstacleToBeRemoved)
+			{
+				CurrentObstacles.RemoveAt(randomIndex, 1, bAllowShrinking);
+				LinkedTrack->RecieveTeleportedObstacle(ObstacleToBeRemoved);
+			}
+		}
+		//Chance to port climbs until hit
+		PortProbability++;
+		PortProbability = FMath::Clamp(PortProbability, 10.f, 50.f);
+	}
+}
+/// <summary>
+/// Shfit all track pieces by the same amount
+/// </summary>
+/// <param name="DeltaTime"></param>
+void ATrackManager::ShiftTrack(float const DeltaTime) {
+	
+	float posDelta = DeltaTime  * -TrackSpeed;
+	for (auto& TrackPiece : CurrentTrackPieces)
+	{
+		TrackPiece->AddActorWorldOffset(FVector(posDelta, 0.f, 0.f));
+	}
+	TrackDelta += -posDelta;
+}
+
+/// <summary>
+/// Shift all obstacles managed by this track the same amount as the relevant track pieces
+/// </summary>
+/// <param name="DeltaTime"></param>
+void ATrackManager::ShiftObstacles(float const DeltaTime) {
+
+	float posDelta = DeltaTime * -TrackSpeed;
+	for (auto& Obstacle : CurrentObstacles)
+	{
+		if (Obstacle->IsValidLowLevel()) {
+			Obstacle->AddActorWorldOffset(FVector(posDelta, 0.f, 0.f));
+		}
+	}
+}
+
+/// <summary>
+/// Clear any obstacles that have moved past a certain threshold and 
+/// add values to chance to port for each removed obstacle
+/// </summary>
+void ATrackManager::ClearObstacles() {
+	const bool bAllowShrinking = false;
+	TWeakObjectPtr<AObstacle> ObstacleToBeRemoved;
+
+	//Step through the array backwards to avoid array number becoming lower
+	//than index
+	for (int32 Index = CurrentObstacles.Num() - 1; Index >= 0; --Index)
+	{
+		ObstacleToBeRemoved = CurrentObstacles[Index];
+		if (ObstacleToBeRemoved->IsValidLowLevel())
+		{
+			if (CurrentObstacles[Index]->GetActorLocation().X < 700.f) 
+			{
+				CurrentObstacles.RemoveAt(Index, 1, bAllowShrinking);
+				ObstaclesToPort++;
+				ObstacleToBeRemoved->Destroy();
+			}
+		}
+	}
+}
+/// <summary>
+/// Difficulty tracks up over time
+/// </summary>
+/// <param name="DeltaTime"></param>
 void ATrackManager::UpdateDifficulty(float const DeltaTime) {
 	TrackDifficulty += DeltaTime * 0.1;
 }
 
 
-void ATrackManager::InitializeTrack()
-{
-	CurrentTrackPieces.Reserve(TrackLength);
-
-	TObjectPtr<ATrackPiece> CreatedTrackPiece;
-
-	//Spawn first track segment and make it both tail and head segment
-	CreatedTrackPiece = GetWorld()->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], GetActorLocation(), GetActorRotation());
-	CreatedTrackPiece->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-	CurrentTrackPieces.Add( CreatedTrackPiece);
-	TailTrackPiece = CurrentTrackPieces[0];
-	HeadTrackPiece = TailTrackPiece;
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = this;
-	//Spawn each subsequent track piece and move the head to each one
-	UWorld* WorldRef = GetWorld();
-	for (int i = 1; i < TrackLength; i++) {
-		const FVector SpawnLocation = HeadTrackPiece->TrackSeamPoint->GetComponentLocation();
-		FRotator  SpawnRotation = HeadTrackPiece->TrackSeamPoint->GetComponentRotation();
-		
-		CreatedTrackPiece = WorldRef->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], SpawnLocation, SpawnRotation, SpawnParams);
-		CreatedTrackPiece->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-		CurrentTrackPieces.Emplace(CreatedTrackPiece);
-		HeadTrackPiece = CurrentTrackPieces[i];
-	}
-
-	HeadTrackPiece = CurrentTrackPieces[TrackLength - 1];
-}
-void ATrackManager::LinkTrackPieces()
-{
-	CurrentTrackPieces[0]->NextTrackPiece = CurrentTrackPieces[1];
-	CurrentTrackPieces[0]->PreviousTrackPiece = CurrentTrackPieces[TrackLength - 1];
-	for (int i = 1; i < CurrentTrackPieces.Num(); i++) {
-
-		CurrentTrackPieces[i]->PreviousTrackPiece = CurrentTrackPieces[(i - 1) % TrackLength];
-		CurrentTrackPieces[i]->NextTrackPiece = CurrentTrackPieces[(i + 1) % TrackLength];
-	}
-
-	PlayerTrackPiece = TailTrackPiece->NextTrackPiece;
-
-}
-
 void ATrackManager::SwapHeadWithTail()
 {
-	RemoveTrackObstacles(TailTrackPiece);
 
 	//Find the attachment position for current head track piece and move tail there
 	const FVector SpawnLocation = HeadTrackPiece->TrackSeamPoint->GetComponentLocation();
@@ -164,7 +171,6 @@ void ATrackManager::SwapHeadWithTail()
 	TWeakObjectPtr<ATrackPiece> temp = TailTrackPiece->NextTrackPiece;
 	HeadTrackPiece = TailTrackPiece;
 	TailTrackPiece = temp;
-	PlayerTrackPiece = PlayerTrackPiece->NextTrackPiece;
 	
 }
 
@@ -183,54 +189,6 @@ void ATrackManager::SpawnObstaclesOnTrack()
 	}
 }
 
-void ATrackManager::RemoveTrackObstacles(TWeakObjectPtr<ATrackPiece> TrackSegmentToBeCleared)
-{
-	//Don't like that this array is created every time. 
-	//TODO: See if UE has non-destructive allocation for resuable arrays
-	//TArray<AActor*> Obstacles;
-	//TrackSegmentToBeCleared->GetAttachedActors(Obstacles);
-	//float ChanceToPort = 0.f;
-	//for (AActor* Obstacle : Obstacles)
-	//{
-	//	ChanceToPort = FMath::RandRange(0, 100);
-
-	//	if (ChanceToPort < PortProbability) {
-	//		//PlayerTrackPiece->NextTrackPiece->NextTrackPiece->PortObstacle(PortDepth);
-	//		//PlayerTrackPiece->NextTrackPiece->NextTrackPiece->RemoveOneObstacle(PortDepth);
-	//		//TArray<AActor*> Obstacles;
-	//		//PlayerTrackPiece->NextTrackPiece->NextTrackPiece->GetAttachedActors( Obstacles);
-	//		
-	//	}
-	//	PortProbability++;
-	//	PortProbability = FMath::Clamp(PortProbability, 10.f, 100.f);
-	//	Obstacle->Destroy();
-	//	
-	//}
-}
-void ATrackManager::PortObstacles() {
-
-	while (ObstaclesToPort > 0) {
-		ObstaclesToPort--;
-		const float ChanceToPort = FMath::RandRange(0, 100);
-		const bool bAllowShrinking = false;
-		TObjectPtr<AObstacle> ObstacleToBeRemoved;
-		if (ChanceToPort < PortProbability) {
-
-			int32 randomIndex = FMath::RandHelper(CurrentObstacles.Num());
-
-			if (randomIndex == 0)
-			{
-				return;
-			}
-			ObstacleToBeRemoved = CurrentObstacles[randomIndex];
-			if (ObstacleToBeRemoved)
-			{
-				CurrentObstacles.RemoveAt(randomIndex, 1, bAllowShrinking);
-				LinkedTrack->RecieveTeleportedObstacle(ObstacleToBeRemoved);
-			}
-		}
-	}
-}
 
 
 void ATrackManager::RecieveTeleportedObstacle(TObjectPtr<AObstacle> Obstacle) {
@@ -247,8 +205,64 @@ void ATrackManager::RecieveTeleportedObstacle(TObjectPtr<AObstacle> Obstacle) {
 		}
 	}
 }
+///// Start up Methods //////
+
+/// <summary>
+/// Create all the track pieces managed by this track manager
+/// </summary>
+void ATrackManager::InitializeTrack()
+{
+	CurrentTrackPieces.Reserve(TrackLength);
+
+	TObjectPtr<ATrackPiece> CreatedTrackPiece;
+
+	//Spawn first track segment and make it both tail and head segment
+	CreatedTrackPiece = GetWorld()->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], GetActorLocation(), GetActorRotation());
+	CreatedTrackPiece->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+	CurrentTrackPieces.Add(CreatedTrackPiece);
+	TailTrackPiece = CurrentTrackPieces[0];
+	HeadTrackPiece = TailTrackPiece;
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	//Spawn each subsequent track piece and move the head to each one
+	UWorld* WorldRef = GetWorld();
+	for (int i = 1; i < TrackLength; i++) {
+		const FVector SpawnLocation = HeadTrackPiece->TrackSeamPoint->GetComponentLocation();
+		FRotator  SpawnRotation = HeadTrackPiece->TrackSeamPoint->GetComponentRotation();
+
+		CreatedTrackPiece = WorldRef->SpawnActor<ATrackPiece>(PossibleTrackPieces[0], SpawnLocation, SpawnRotation, SpawnParams);
+		CreatedTrackPiece->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+		CurrentTrackPieces.Emplace(CreatedTrackPiece);
+		HeadTrackPiece = CurrentTrackPieces[i];
+	}
+
+	HeadTrackPiece = CurrentTrackPieces[TrackLength - 1];
+}
+/// <summary>
+//Link Track Pieces to each other so that the head and tail track piece
+//can be easily updated
+/// </summary>
+
+void ATrackManager::LinkTrackPieces()
+{
+	CurrentTrackPieces[0]->NextTrackPiece = CurrentTrackPieces[1];
+	CurrentTrackPieces[0]->PreviousTrackPiece = CurrentTrackPieces[TrackLength - 1];
+	for (int i = 1; i < CurrentTrackPieces.Num(); i++) {
+
+		CurrentTrackPieces[i]->PreviousTrackPiece = CurrentTrackPieces[(i - 1) % TrackLength];
+		CurrentTrackPieces[i]->NextTrackPiece = CurrentTrackPieces[(i + 1) % TrackLength];
+	}
 
 
+}
+///// Utility Methods //////
+
+/// <summary>
+/// The offset to move an obstacle to the corresponding track's same position
+/// Not the best solution but couldn't get a mapping to work better
+/// </summary>
+/// <returns></returns>
 FVector ATrackManager::GetLocalOffset() {
 	if (TrackId == 0) {
 		return FVector(0.f, -950.f, 0.f);
@@ -256,11 +270,19 @@ FVector ATrackManager::GetLocalOffset() {
 	else
 		return FVector(0.f, 950.f, 0.f);
 }
-
+/// <summary>
+/// Configures track id. Track ID maps to this track managers index in Game Instance's 
+/// Player Track Array
+/// </summary>
+/// <param name="newTrackId"></param>
 void ATrackManager::ConfigureId(const int32 newTrackId) {
 	TrackId = newTrackId;
 }
+
+/// <summary>
+/// Probabiltiy to port is reset whenever this Track Manager's character takes damage
+/// </summary>
 void ATrackManager::ResetProbability() {
-	//PortProbability = 10.f;
+	PortProbability = 10.f;
 }
 

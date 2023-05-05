@@ -8,8 +8,6 @@
 #include "../TrackPiece.h"
 #include "TrackManager.generated.h"
 
-UDELEGATE()
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FTeleportObstacle, AActor*, ObstacleToTeleport, int32, TrackId);
 
 UCLASS()
 
@@ -26,56 +24,78 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	FVector GetLocalOffset();
-	int32 ObstaclesToPort;
-public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	/// Obstacle Management /////
+	/// <summary>
+	/// Returns how much an obstacle should be offset
+	/// to transition to the other track
+	/// </summary>
+	/// <returns></returns>
+	FVector GetLocalOffset();
+	/// <summary>
+	/// Counter for draining obstaces from one track to the other
+	/// </summary>
+	int32 ObstaclesToPort;
 	
+public:	
+	
+	/// Configuration Settngs for BP /////
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Track Blueprints")
-	TArray<TSubclassOf<ATrackPiece> > PossibleTrackPieces;
+		TArray<TSubclassOf<ATrackPiece> > PossibleTrackPieces;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Obstacle Blueprints")
-	TArray<TSubclassOf<AObstacle>> PossibleObstacles;
+		TArray<TSubclassOf<AObstacle>> PossibleObstacles;
 	
-	UPROPERTY()
-	FTeleportObstacle OnTeleportObstacle;
-
-
-	UPROPERTY(BlueprintReadOnly)
-	TArray<ATrackPiece*> CurrentTrackPieces;
-	UPROPERTY(BlueprintReadOnly)
-	TArray<TObjectPtr<AObstacle>> CurrentObstacles;
-	UPROPERTY()
-	TArray<TObjectPtr<AObstacle>> RecievedObstacles;
 	UPROPERTY(EditAnywhere)
-	int TrackLength;
-	UPROPERTY(EditAnywhere) 
-	float TrackSpeed;
-	UPROPERTY(VisibleAnywhere) 
-	int32 TrackId;
-	
+		int TrackLength;
+	UPROPERTY(EditAnywhere)
+		float TrackSpeed;
+	UPROPERTY(VisibleAnywhere)
+		int32 TrackId;
+	UPROPERTY(EditDefaultsOnly)
+		float TrackDifficulty;
+	UPROPERTY(EditAnywhere)
+		float PortProbability;
+
+	/// In Game References /////
+
+	UPROPERTY(BlueprintReadOnly)
+		TArray<ATrackPiece*> CurrentTrackPieces;
+	UPROPERTY(BlueprintReadOnly)
+		TArray<TObjectPtr<AObstacle>> CurrentObstacles;
 	UPROPERTY()
-	float TrackDelta; 
-	UPROPERTY( EditAnywhere)
-	float TrackDifficulty;
-	UPROPERTY( EditAnywhere)
-	float PortProbability;
-	UPROPERTY( EditAnywhere)
-	int32 PortDepth;
+		TArray<TObjectPtr<AObstacle>> RecievedObstacles;
 	UPROPERTY(VisibleAnywhere)
-	TWeakObjectPtr<ATrackManager> LinkedTrack;
+		TWeakObjectPtr<ATrackManager> LinkedTrack;
 	UPROPERTY(VisibleAnywhere)
-	TWeakObjectPtr<ATrackPiece> HeadTrackPiece;
+		TWeakObjectPtr<ATrackPiece> HeadTrackPiece;
 	UPROPERTY(VisibleAnywhere)
-	TWeakObjectPtr<ATrackPiece> PlayerTrackPiece; 
-	UPROPERTY(VisibleAnywhere)
-	TWeakObjectPtr<ATrackPiece> TailTrackPiece;
+		TWeakObjectPtr<ATrackPiece> TailTrackPiece;
+	//Tracks if track has moved far enough to warrant swapping head and tail pieces
+	UPROPERTY()
+		float TrackDelta; 
 	
 	
+	
+	/// <summary>
+	/// Track Creation methods called in begin play
+	/// </summary>
 	UFUNCTION()
 	void InitializeTrack();
 	UFUNCTION()
 	void LinkTrackPieces(); 
+	/// <summary>
+	/// Track Coniguration methods 
+	/// </summary>
+
+	void ConfigureId(const int32 TrackId);
+	TArray<FVector> LaneOffsets;
+
+	/// <summary>
+	/// Track Management Methods
+	/// </summary>
 	UFUNCTION()
 	void SwapHeadWithTail();
 	UFUNCTION()
@@ -86,7 +106,6 @@ public:
 	void ClearObstacles();
 	UFUNCTION()
 	void PortObstacles();	
-
 	UFUNCTION()
 	void RecieveObstacles();
 	UFUNCTION()
@@ -95,11 +114,8 @@ public:
 	void ResetProbability();
 	UFUNCTION()
 	void SpawnObstaclesOnTrack();
-
 	void RecieveTeleportedObstacle(TObjectPtr<AObstacle> ActorToDeposit);
-	TArray<FVector> LaneOffsets;
+
 	
-	void ConfigureId(const int32 TrackId);
-private:
-	void RemoveTrackObstacles(TWeakObjectPtr<ATrackPiece> TailTrackPiece);
+	
 };

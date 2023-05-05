@@ -88,6 +88,7 @@ void AEndless_RunnerGameMode::SpawnPlayers()
 
 void AEndless_RunnerGameMode::FinishGame(int32 LosingPlayerId) {
 
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("Finishing Game"));
 	UGameplayStatics::SetGamePaused(GetWorld(),true);
 	float realtimeSeconds = UGameplayStatics::GetTimeSeconds(GetWorld());
 	FTimespan TimeToSubmit = FTimespan::FromSeconds(realtimeSeconds);

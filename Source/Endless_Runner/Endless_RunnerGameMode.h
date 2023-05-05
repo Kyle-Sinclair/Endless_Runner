@@ -49,7 +49,7 @@ public:
 	/// <summary>
 	/// Public functions for player to control game state
 	/// </summary>
-
+	UFUNCTION()
 	void FinishGame(int32 LosingPlayerId);
 	void PauseGame();
 
